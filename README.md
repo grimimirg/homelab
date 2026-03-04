@@ -13,6 +13,7 @@ The system is built on a modular design where each service has its own directory
 
 ## Project Structure
 
+```
 .
 ├── db/              # PostgreSQL service definitions
 ├── n8n/             # n8n service definitions
@@ -23,6 +24,7 @@ The system is built on a modular design where each service has its own directory
 ├── setup.sh         # Script to generate configs based on .env
 ├── orchestrator.sh  # Script to deploy/start services
 └── cleanup.sh       # Script to wipe the environment
+```
     
 
 ## Deployment
@@ -57,7 +59,7 @@ chmod +x orchestrator.sh
 ./orchestrator.sh
 ```
 
-## Maintenance
+## Cleanup
 
 **Warning:** Running `cleanup.sh` will stop containers, remove the network, and delete the generated configurations and data directories. **This will delete your databases.**
 

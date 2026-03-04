@@ -1,0 +1,24 @@
+server_name: "${DOMAIN}"
+public_baseurl: "https://${DOMAIN}"
+pid_file: /data/homeserver.pid
+
+# Database
+database:
+  name: psycopg2
+  args:
+    user: synapse
+    password: "${POSTGRES_PASSWORD}"
+    database: synapse
+    host: shared_postgres
+    cp_min: 5
+    cp_max: 10
+
+# Security
+registration_shared_secret: "${SYNAPSE_REGISTRATION_SHARED_SECRET}"
+
+# Logging
+log_config: "/data/log.config"
+media_store_path: "/data/media_store"
+
+# Enable federation
+federation_enabled: true

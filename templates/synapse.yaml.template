@@ -1,0 +1,17 @@
+services:
+  synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: synapse
+    restart: always
+    environment:
+      - SYNAPSE_SERVER_NAME=${DOMAIN}
+      - SYNAPSE_REPORT_STATS=no
+    volumes:
+      - ../data:/data
+      - ../logs:/var/log/synapse
+    networks:
+      - homelab_net
+
+networks:
+  homelab_net:
+    external: true

@@ -1,0 +1,6 @@
+.env
+ssl/*
+db/*
+n8n/*
+nginx/*
+synapse/*

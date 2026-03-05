@@ -17,21 +17,38 @@ set of orchestration scripts.
 ## Project Structure
 
 ```
-├── cleanup.sh               # Full environment wipe script
-├── init-db.sh               # Automated DB/User provisioning
-├── README.md                # Documentation
-├── setup.sh                 # Scaffolding and config generator
-├── setup-ssl.sh             # SSL certificate helper
-├── ssl/                     # SSL certificates directory
-├── startup.sh               # Orchestrator to boot all services
-├── synapse-scripts/         # Administration scripts for Synapse
-└── templates/               # IaC templates (categorized)
-    ├── db/                  # PostgreSQL configuration
-    ├── gitea/               # Gitea & DB definitions
-    ├── navidrome/           # Music server definitions
-    ├── nginx/               # Reverse proxy configurations
-    ├── paperless/           # Document management + Redis
-    └── synapse/             # Synapse server definitions
+├── cleanup.sh                               #  Full environment wipe script
+├── init-db.sh                               #  Automated DB/User provisioning
+├── README.md                                #  Documentation
+├── setup.sh                                 #  Scaffolding and config generator
+├── setup-ssl.sh                             #  SSL certificate helper
+├── startup.sh                               # Orchestrator to boot all services
+├── synapse-scripts                          # Administration scripts for Synapse
+│    ├── create-user-batch.sh
+│    └── create-user.sh
+└── templates                                # IaC templates (categorized)
+    ├── db                                   # PostgreSQL configuration
+    │   └── db.yaml.template
+    ├── gitea                                # Gitea & DB definitions
+    │   ├── gitea.conf.template
+    │   └── gitea.yaml.template
+    ├── homeserver.yaml.template
+    ├── log.config.template
+    ├── n8n                                  # n8n service definitions
+    │   ├── n8n.conf.template
+    │   └── n8n.yaml.template
+    ├── navidrome                            # Music server definitions
+    │   ├── navidrome.conf.template
+    │   └── navidrome.yml.template
+    ├── nginx                                # Reverse proxy configurations
+    │   ├── nginx.main.conf.template
+    │   └── nginx.yaml.template
+    ├── paperless                            # Document management + Redis
+    │   ├── paperless.conf.template
+    │   └── paperless.yaml.template
+    └── synapse                              # Synapse server definitions
+        ├── synapse.conf.template
+        └── synapse.yaml.template
 ```
 
 ## Deployment

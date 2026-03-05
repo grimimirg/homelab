@@ -1,6 +1,11 @@
 .env
-ssl/*
-db/*
-n8n/*
-nginx/*
-synapse/*
+
+data/
+db/postgres/
+n8n/
+nginx/
+synapse/
+
+*.log
+
+.idea/

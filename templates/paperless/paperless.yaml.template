@@ -1,0 +1,33 @@
+services:
+  broker:
+    image: redis:7
+    restart: always
+    networks:
+      - homelab_net
+
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    restart: always
+    depends_on:
+      - broker
+    ports:
+      - "8000:8000"
+    environment:
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_DBHOST: db
+      PAPERLESS_DBNAME: paperless
+      PAPERLESS_DBUSER: ${POSTGRES_USER}
+      PAPERLESS_DBPASS: ${POSTGRES_PASSWORD}
+      PAPERLESS_URL: https://docs.${DOMAIN}
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+    volumes:
+      - ../data/paperless/data:/usr/src/paperless/data
+      - ../data/paperless/media:/usr/src/paperless/media
+      - ../data/paperless/consumption:/usr/src/paperless/consume
+    networks:
+      - homelab_net
+
+networks:
+  homelab_net:
+    external: true

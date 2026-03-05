@@ -6,11 +6,17 @@ services:
     environment:
       - SYNAPSE_SERVER_NAME=${DOMAIN}
       - SYNAPSE_REPORT_STATS=no
+      - SYNAPSE_DATABASE_DB_USER=${SYNAPSE_DB_USER}
+      - SYNAPSE_DATABASE_DB_PASSWORD=${SYNAPSE_DB_PASS}
+      - SYNAPSE_DATABASE_DB_HOST=shared_postgres
+      - SYNAPSE_DATABASE_DB_NAME=synapse
     volumes:
       - ../data:/data
       - ../logs:/var/log/synapse
     networks:
       - homelab_net
+    depends_on:
+      - shared_postgres
 
 networks:
   homelab_net:

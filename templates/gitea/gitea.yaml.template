@@ -1,0 +1,9 @@
+services:
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    restart: always
+    volumes:
+      - ../data/gitea:/data
+    networks:
+      - homelab_net

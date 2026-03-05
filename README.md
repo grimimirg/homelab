@@ -1,31 +1,38 @@
 # Modular Homelab Infrastructure
 
-This project provides a modular, containerized approach to managing your home services (Matrix/Synapse, n8n, PostgreSQL) using Docker and Nginx as a reverse proxy. The infrastructure is defined as code (IaC), allowing for rapid setup, deployment, and cleanup.
+This project provides a modular, containerized approach to managing your home services
+using Docker and Nginx as a reverse proxy. The infrastructure is defined as code (IaC), allowing for rapid setup,
+deployment, and cleanup.
 
 ## Architecture
 
-The system is built on a modular design where each service has its own directory and lifecycle, coordinated by a central set of orchestration scripts.
+The system is built on a modular design where each service has its own directory and lifecycle, coordinated by a central
+set of orchestration scripts.
 
-*   **Reverse Proxy:** Nginx (Containerized).
-*   **Database:** PostgreSQL (Centralized).
-*   **Services:** Synapse, n8n.
-*   **Network:** Shared bridge network (`homelab_net`).
+* **Reverse Proxy:** Nginx (Containerized).
+* **Database:** PostgreSQL (Centralized).
+* **Services:** Synapse, n8n.
+* **Network:** Shared bridge network (`homelab_net`).
 
 ## Project Structure
 
 ```
-.
-├── db/              # PostgreSQL service definitions
-├── n8n/             # n8n service definitions
-├── nginx/           # Reverse proxy configuration
-├── synapse/         # Matrix server definitions
-├── data/            # Synapse persistent configuration (generated)
-├── templates/       # Configuration templates (IaC)
-├── setup.sh         # Script to generate configs based on .env
-├── orchestrator.sh  # Script to deploy/start services
-└── cleanup.sh       # Script to wipe the environment
+├── cleanup.sh               # Full environment wipe script
+├── init-db.sh               # Automated DB/User provisioning
+├── README.md                # Documentation
+├── setup.sh                 # Scaffolding and config generator
+├── setup-ssl.sh             # SSL certificate helper
+├── ssl/                     # SSL certificates directory
+├── startup.sh               # Orchestrator to boot all services
+├── synapse-scripts/         # Administration scripts for Synapse
+└── templates/               # IaC templates (categorized)
+    ├── db/                  # PostgreSQL configuration
+    ├── gitea/               # Gitea & DB definitions
+    ├── navidrome/           # Music server definitions
+    ├── nginx/               # Reverse proxy configurations
+    ├── paperless/           # Document management + Redis
+    └── synapse/             # Synapse server definitions
 ```
-    
 
 ## Deployment
 
@@ -35,33 +42,34 @@ This workflow uses a clear separation between infrastructure generation and serv
 
 Create a `.env` file in the project root with the following variables:
 
-DOMAIN="your.domain.com"
-EMAIL="your@email.com"
-POSTGRES\_PASSWORD="your\_strong\_password"
-SYNAPSE\_REGISTRATION\_SHARED\_SECRET="your\_secret\_key"
-    
+| Variable                           | Description                                                                                 |
+|------------------------------------|---------------------------------------------------------------------------------------------|
+| DOMAIN                             | The primary domain name used for SSL certificate issuance and public access.                |
+| EMAIL                              | Contact email address used by Let's Encrypt for SSL certificate notifications.              |
+| POSTGRES_USER                      | The administrative username for PostgreSQL, used by the init-db.sh script for provisioning. |
+| POSTGRES_PASSWORD                  | The master password for the PostgreSQL administrator account.                               |
+| GITEA_DB_USER                      | Dedicated database username for the Gitea service.                                          |
+| GITEA_DB_PASS                      | Dedicated database password for the Gitea service.                                          |
+| PAPERLESS_DB_USER                  | Dedicated database username for the Paperless-ngx service.                                  |
+| PAPERLESS_DB_PASS                  | Dedicated database password for the Paperless-ngx service.                                  |
+| PAPERLESS_SECRET_KEY               | A secure, random string used for session encryption in Paperless-ngx.                       |
+| SYNAPSE_DB_USER                    | Dedicated database username for the Synapse service.                                        |
+| SYNAPSE_DB_PASS                    | Dedicated database password for the Synapse service.                                        |
+| SYNAPSE_REGISTRATION_SHARED_SECRET | A security key required to authorize user registrations on your server.                     |
+| NAVIDROME_MUSIC_FOLDER_PATH        | The absolute path on your host server where your music library is stored.                   |
 
-### 2\. Prepare the Infrastructure
+### 2\. Startup Workflow
 
-Run the setup script to generate configurations and directory structures from templates:
-
-```
-chmod +x setup.sh
-./setup.sh
-```
-
-### 3\. Deploy
-
-Launch the services in the correct dependency order:
-
-```
-chmod +x orchestrator.sh
-./orchestrator.sh
-```
+1. **Prepare:** Configure your `.env` file with all required variables (see above).
+2. **Scaffold:** Run `./setup.sh` to generate configurations from `templates/`.
+3. **Secure:** Run `./setup-ssl.sh` to prepare your certificates.
+4. **Provision:** Run `./startup.sh`. This will spin up the database, wait for readiness, and execute `./init-db.sh` to
+   create dedicated DB users and schemas.
 
 ## Cleanup
 
-**Warning:** Running `cleanup.sh` will stop containers, remove the network, and delete the generated configurations and data directories. **This will delete your databases.**
+**Warning:** Running `cleanup.sh` will stop containers, remove the network, and delete the generated configurations and
+data directories. **This will delete your databases.**
 
 ```
 ./cleanup.sh

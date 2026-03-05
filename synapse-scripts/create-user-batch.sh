@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Batch User Creation Script
-echo "=== Matrix Batch User Creation ==="
+echo "=== Synapse Batch User Creation ==="
 echo ""
 
 # Check if Matrix server is running
@@ -26,7 +25,7 @@ EOF
     exit 0
 fi
 
-source config.env
+source .env
 
 echo "Reading users from users.txt..."
 echo ""

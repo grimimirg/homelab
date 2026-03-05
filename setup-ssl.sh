@@ -4,15 +4,15 @@
 echo "Matrix Server SSL Setup"
 
 # Load configuration
-if [ ! -f "config.env" ]; then
-    echo "ERROR: config.env not found!"
+if [ ! -f ".env" ]; then
+    echo "ERROR: .env not found!"
     exit 1
 fi
 
-source config.env
+source .env
 
 if [ -z "$DOMAIN" ] || [ -z "$EMAIL" ]; then
-    echo "ERROR: DOMAIN and EMAIL must be set in config.env"
+    echo "ERROR: DOMAIN and EMAIL must be set in .env"
     exit 1
 fi
 

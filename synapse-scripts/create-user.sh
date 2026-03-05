@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# Matrix User Creation Script
-echo "=== Matrix User Creation Tool ==="
-echo ""
+echo "=== Synapse User Creation Tool ==="
 
 # Check if Matrix server is running
 if ! docker-compose ps synapse | grep -q "Up"; then
@@ -27,7 +25,7 @@ else
 fi
 
 echo ""
-echo "Creating user: @$username:$(grep DOMAIN= config.env | cut -d'=' -f2)"
+echo "Creating user: @$username:$(grep DOMAIN= .env | cut -d'=' -f2)"
 echo "Type: $admin_text"
 echo ""
 
@@ -42,9 +40,9 @@ docker-compose exec -T synapse register_new_matrix_user \
 if [ $? -eq 0 ]; then
     echo ""
     echo "User created successfully!"
-    echo "Login at: https://$(grep DOMAIN= config.env | cut -d'=' -f2)"
-    echo "Username: @$username:$(grep DOMAIN= config.env | cut -d'=' -f2)"
-    source config.env
+    echo "Login at: https://$(grep DOMAIN= .env | cut -d'=' -f2)"
+    echo "Username: @$username:$(grep DOMAIN= .env | cut -d'=' -f2)"
+    source .env
     echo "Server: $DOMAIN"
 else
     echo ""

@@ -1,8 +1,5 @@
 #!/bin/bash
 
-PARENT_DIR=$(cd "$(dirname "$0")" && pwd)
-cd "$PARENT_DIR" || exit 1
-
 echo "Starting Homelab..."
 
 source .env
@@ -20,7 +17,7 @@ echo "Waiting for Database to initialize..."
 
 echo "Waiting for Postgres to be ready..."
 # Wait until the container is ready
-until docker exec db-container-name pg_isready -U postgres_user; do
+until docker exec shared_postgres pg_isready -U postgres_user; do
   echo "Postgres is unavailable - sleeping"
   sleep 2
 done

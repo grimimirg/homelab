@@ -1,10 +1,14 @@
 .env
 
 data/
-db/postgres/
+db/
 n8n/
 nginx/
 synapse/
+gitea/
+navidrome/
+ssl/
+paperless/
 
 *.log
 

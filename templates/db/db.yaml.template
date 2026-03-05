@@ -1,5 +1,5 @@
 services:
-  postgres:
+  shared_postgres:
     image: postgres:15
     container_name: shared_postgres
     restart: always

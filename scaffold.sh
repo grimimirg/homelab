@@ -1,8 +1,5 @@
 #!/bin/bash
 
-PARENT_DIR=$(cd "$(dirname "$0")/.." && pwd)
-cd "$PARENT_DIR" || exit 1
-
 # ---------------------------------------------------------------
 # METHODS
 
@@ -63,7 +60,7 @@ done
 
 echo "Variables validation passed."
 echo "Exporting variables: DOMAIN POSTGRES_PASSWORD SYNAPSE_REGISTRATION_SHARED_SECRET EMAIL"
-export DOMAIN POSTGRES_PASSWORD SYNAPSE_REGISTRATION_SHARED_SECRET EMAIL
+export DOMAIN EMAIL POSTGRES_USER POSTGRES_PASSWORD SYNAPSE_REGISTRATION_SHARED_SECRET EMAIL
 
 ######################################################################
 # Directories Creation

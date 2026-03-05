@@ -23,7 +23,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     docker network rm homelab_net 2>/dev/null
 
     echo "Removing generated directories..."
-    rm -rf nginx db/postgres n8n synapse data gitea navidrome paperless
+    rm -rf nginx db db/postgres n8n synapse data gitea navidrome paperless
 
     echo "Removing project-specific images..."
     docker rmi -f postgres:15 nginx:alpine n8nio/n8n:latest matrixdotorg/synapse:latest 2>/dev/null

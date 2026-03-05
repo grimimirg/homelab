@@ -3,11 +3,12 @@ services:
     image: redis:7
     restart: always
     networks:
-      - homelab_net
+      - ${SHARED_NETWORK}
 
   paperless:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest
     container_name: paperless
+    user: 1000:1000
     restart: always
     depends_on:
       - broker
@@ -26,8 +27,8 @@ services:
       - ../data/paperless/media:/usr/src/paperless/media
       - ../data/paperless/consumption:/usr/src/paperless/consume
     networks:
-      - homelab_net
+      - ${SHARED_NETWORK}
 
 networks:
-  homelab_net:
+  ${SHARED_NETWORK}:
     external: true

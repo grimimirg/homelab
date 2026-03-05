@@ -9,8 +9,8 @@ services:
       - N8N_PROTOCOL=https
       - WEBHOOK_URL=https://n8n.${DOMAIN}/
     networks:
-      - homelab_net
+      - ${SHARED_NETWORK}
 
 networks:
-  homelab_net:
+  ${SHARED_NETWORK}:
     external: true

@@ -6,4 +6,8 @@ services:
     volumes:
       - ../data/gitea:/data
     networks:
-      - homelab_net
+      - ${SHARED_NETWORK}
+
+networks:
+  ${SHARED_NETWORK}:
+    external: true

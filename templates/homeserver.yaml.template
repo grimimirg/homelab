@@ -1,24 +1,47 @@
 server_name: "${DOMAIN}"
-public_baseurl: "https://${DOMAIN}"
-pid_file: /data/homeserver.pid
+public_baseurl: "https://${DOMAIN}/"
+
+# Listeners
+listeners:
+  - port: 8008
+    tls: false
+    type: http
+    x_forwarded: true
+    resources:
+      - names: [client, federation]
 
 # Database
 database:
   name: psycopg2
   args:
-    user: synapse
-    password: "${POSTGRES_PASSWORD}"
-    database: synapse
+    user: "${SYNAPSE_DB_USER}"
+    password: "${SYNAPSE_DB_PASS}"
     host: shared_postgres
+    port: 5432
+    database: "${SYNAPSE_DB_NAME}"
     cp_min: 5
     cp_max: 10
 
-# Security
+# Paths
+media_store_path: "/data/media_store"
+signing_key_path: "/data/signing.key"
+log_config: "/data/log.config"
+
+# Registration
+enable_registration: false
 registration_shared_secret: "${SYNAPSE_REGISTRATION_SHARED_SECRET}"
 
-# Logging
-log_config: "/data/log.config"
-media_store_path: "/data/media_store"
+# User Directory
+user_directory:
+  enabled: true
+  search_all_users: true
+  prefer_local_users: true
 
-# Enable federation
-federation_enabled: true
+# Security
+report_stats: false
+max_upload_size: 50M
+
+# Federation
+trusted_key_servers:
+  - server_name: "matrix.org"
+suppress_key_server_warning: true

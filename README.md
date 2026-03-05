@@ -20,7 +20,7 @@ set of orchestration scripts.
 ├── cleanup.sh                               #  Full environment wipe script
 ├── init-db.sh                               #  Automated DB/User provisioning
 ├── README.md                                #  Documentation
-├── setup.sh                                 #  Scaffolding and config generator
+├── scaffold.sh                              #  Scaffolding and config generator
 ├── setup-ssl.sh                             #  SSL certificate helper
 ├── startup.sh                               # Orchestrator to boot all services
 ├── synapse-scripts                          # Administration scripts for Synapse
@@ -63,6 +63,7 @@ Create a `.env` file in the project root with the following variables:
 |------------------------------------|---------------------------------------------------------------------------------------------|
 | DOMAIN                             | The primary domain name used for SSL certificate issuance and public access.                |
 | EMAIL                              | Contact email address used by Let's Encrypt for SSL certificate notifications.              |
+| SHARED_NETWORK                     | The shared network used by containers to communicate with eachother.                        |
 | POSTGRES_USER                      | The administrative username for PostgreSQL, used by the init-db.sh script for provisioning. |
 | POSTGRES_PASSWORD                  | The master password for the PostgreSQL administrator account.                               |
 | GITEA_DB_USER                      | Dedicated database username for the Gitea service.                                          |
@@ -78,8 +79,8 @@ Create a `.env` file in the project root with the following variables:
 ### 2\. Startup Workflow
 
 1. **Prepare:** Configure your `.env` file with all required variables (see above).
-2. **Scaffold:** Run `./setup.sh` to generate configurations from `templates/`.
-3. **Secure:** Run `./setup-ssl.sh` to prepare your certificates.
+2. **Secure:** Run `./setup-ssl.sh` to prepare your certificates.
+3. **Scaffold:** Run `./scaffold.sh` to generate configurations from `templates/`.
 4. **Provision:** Run `./startup.sh`. This will spin up the database, wait for readiness, and execute `./init-db.sh` to
    create dedicated DB users and schemas.
 

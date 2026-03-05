@@ -15,8 +15,8 @@ services:
       # SSL Certs (Assumes your host has them in /etc/letsencrypt)
       - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:
-      - homelab_net
+      - ${SHARED_NETWORK}
 
 networks:
-  homelab_net:
+  ${SHARED_NETWORK}:
     external: true

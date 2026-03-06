@@ -11,44 +11,46 @@ set of orchestration scripts.
 
 * **Reverse Proxy:** Nginx (Containerized).
 * **Database:** PostgreSQL (Centralized).
-* **Services:** Synapse, n8n.
-* **Network:** Shared bridge network (`homelab_net`).
+* **Services:** Synapse, n8n, gitea, paperless, navidrome.
+* **Network:** Shared bridge network.
 
 ## Project Structure
 
 ```
-├── cleanup.sh                               #  Full environment wipe script
-├── init-db.sh                               #  Automated DB/User provisioning
-├── README.md                                #  Documentation
-├── scaffold.sh                              #  Scaffolding and config generator
-├── setup-ssl.sh                             #  SSL certificate helper
-├── startup.sh                               # Orchestrator to boot all services
+├── build.sh                                 # Orchestrator to build and boot all services
+├── cleanup.sh                               # Full environment wipe script
+├── init-db.sh                               # Automated DB/User provisioning
+├── README.md                                # Documentation
+├── scaffold.sh                              # Scaffolding and config generator
+├── setup-ssl.sh                             # SSL certificate helper
+├── shutdown.sh                              # Orchestrator to manually stop all services
+├── startup.sh                               # Orchestrator to manually start all services
 ├── synapse-scripts                          # Administration scripts for Synapse
-│    ├── create-user-batch.sh
-│    └── create-user.sh
+│    ├── create-user-batch.sh                # Utility script for batch user creation
+│    └── create-user.sh                      # Utility script for user creation
 └── templates                                # IaC templates (categorized)
+    ├── homeserver.yaml.template             # Synapse settings
+    ├── log.config.template                  # Log settings
     ├── db                                   # PostgreSQL configuration
-    │   └── db.yaml.template
+    │   └── db.yaml.template                 # Docker Compose template for postgres
     ├── gitea                                # Gitea & DB definitions
-    │   ├── gitea.conf.template
-    │   └── gitea.yaml.template
-    ├── homeserver.yaml.template
-    ├── log.config.template
+    │   ├── gitea.conf.template              # Nginx proxy conf for n8n
+    │   └── gitea.yaml.template              # Docker Compose template for gitea
     ├── n8n                                  # n8n service definitions
-    │   ├── n8n.conf.template
-    │   └── n8n.yaml.template
+    │   ├── n8n.conf.template                # Nginx proxy conf for n8n
+    │   └── n8n.yaml.template                # Docker Compose template for n8n
     ├── navidrome                            # Music server definitions
-    │   ├── navidrome.conf.template
-    │   └── navidrome.yml.template
+    │   ├── navidrome.conf.template          # Nginx proxy conf for navidrome
+    │   └── navidrome.yml.template           # Docker Compose template for navidrome
     ├── nginx                                # Reverse proxy configurations
-    │   ├── nginx.main.conf.template
-    │   └── nginx.yaml.template
+    │   ├── nginx.main.conf.template         # Nginx proxy main configuration
+    │   └── nginx.yaml.template              # Docker Compose template for nginx
     ├── paperless                            # Document management + Redis
-    │   ├── paperless.conf.template
-    │   └── paperless.yaml.template
+    │   ├── paperless.conf.template          # Nginx proxy conf for paperless
+    │   └── paperless.yaml.template          # Docker Compose template for paperless
     └── synapse                              # Synapse server definitions
-        ├── synapse.conf.template
-        └── synapse.yaml.template
+        ├── synapse.conf.template            # Nginx proxy conf for synapse
+        └── synapse.yaml.template            # Docker Compose template for synapse
 ```
 
 ## Deployment
@@ -81,8 +83,12 @@ Create a `.env` file in the project root with the following variables:
 1. **Prepare:** Configure your `.env` file with all required variables (see above).
 2. **Secure:** Run `./setup-ssl.sh` to prepare your certificates.
 3. **Scaffold:** Run `./scaffold.sh` to generate configurations from `templates/`.
-4. **Provision:** Run `./startup.sh`. This will spin up the database, wait for readiness, and execute `./init-db.sh` to
+4. **Provision:** Run `./build.sh`. This will spin up the database, wait for readiness, and execute `./init-db.sh` to
    create dedicated DB users and schemas.
+
+## Start and Stop
+
+Use `startup.sh` to start all containers at once, and `shutdown.sh` to stop all containers at once.
 
 ## Cleanup
 

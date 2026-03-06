@@ -1,47 +1,25 @@
 #!/bin/bash
 
-echo "Starting Homelab..."
+# List of service directories containing docker-compose.yaml
+# Ensure the order matches your dependency requirements
+#
+#####################################################
+# NOTE: DB needs always to start before the others! #
+#####################################################
+#
+SERVICES=("db" "nginx" "n8n" "synapse" "gitea" "navidrome" "paperless")
 
-source .env
+echo "Starting all homelab services..."
 
-if ! docker network inspect "$SHARED_NETWORK" >/dev/null 2>&1; then
-    echo "Creating network $SHARED_NETWORK..."
-    docker network create "$SHARED_NETWORK"
-else
-    echo "Network $SHARED_NETWORK already exists."
-fi
-
-echo "Starting Database..."
-docker-compose -f db/docker-compose.yaml up -d
-echo "Waiting for Database to initialize..."
-
-echo "Waiting for Postgres to be ready..."
-# Wait until the container is ready
-until docker exec shared_postgres pg_isready -U "$POSTGRES_USER"; do
-  echo "Postgres is unavailable - sleeping"
-  sleep 5
+for dir in "${SERVICES[@]}"; do
+    if [ -f "$dir/docker-compose.yaml" ]; then
+        echo "Starting service in $dir..."
+        # Using 'up -d' ensures that the services are started in detached mode
+        # and it will recreate them if the configuration was changed.
+        docker-compose -f "$dir/docker-compose.yaml" up -d
+    else
+        echo "No docker-compose.yaml found in $dir, skipping."
+    fi
 done
 
-echo "Database is up! Provisioning..."
-./init-db.sh
-
-echo "Starting Nginx..."
-docker-compose -f nginx/docker-compose.yaml up -d
-
-echo "Starting n8n..."
-docker-compose -f n8n/docker-compose.yaml up -d
-
-echo "Starting Synapse..."
-docker-compose -f synapse/docker-compose.yaml up -d
-
-echo "Starting Gitea..."
-docker-compose -f gitea/docker-compose.yaml up -d
-
-echo "Starting Navidrome..."
-docker-compose -f navidrome/docker-compose.yaml up -d
-
-echo "Starting Paperless..."
-docker-compose -f paperless/docker-compose.yaml up -d
-
-echo "Complete! All services are now running."
-echo "Check their status with: docker-compose -f <folder>/docker-compose.yaml ps"
+echo "All services have been started."

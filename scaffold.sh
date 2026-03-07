@@ -79,27 +79,30 @@ prepare_directories
 # NGINX
 generate_from_template "templates/nginx/nginx.yaml.template" "nginx/docker-compose.yaml"
 generate_from_template "templates/nginx/nginx.main.conf.template" "nginx/nginx.conf"
-generate_from_template "templates/synapse/synapse.conf.template" "nginx/conf.d/synapse.conf"
-generate_from_template "templates/n8n/n8n.conf.template" "nginx/conf.d/n8n.conf"
 
 # DATABASE
 generate_from_template "templates/db/db.yaml.template" "db/docker-compose.yaml"
 
 # N8N
 generate_from_template "templates/n8n/n8n.yaml.template" "n8n/docker-compose.yaml"
+generate_from_template "templates/n8n/n8n.conf.template" "nginx/conf.d/n8n.conf"
 
 # SYNAPSE
 generate_from_template "templates/synapse/synapse.yaml.template" "synapse/docker-compose.yaml"
+generate_from_template "templates/synapse/synapse.conf.template" "nginx/conf.d/synapse.conf"
 generate_from_template "templates/homeserver.yaml.template" "data/homeserver.yaml"
 cp templates/log.config.template data/log.config
 
 # GITEA
 generate_from_template "templates/gitea/gitea.yaml.template" "gitea/docker-compose.yaml"
+generate_from_template "templates/gitea/gitea.conf.template" "nginx/conf.d/gitea.conf"
 
 # NAVIDROME
 generate_from_template "templates/navidrome/navidrome.yaml.template" "navidrome/docker-compose.yaml"
+generate_from_template "templates/navidrome/navidrome.conf.template" "nginx/conf.d/navidrome.conf"
 
 # PAPERLESS
 generate_from_template "templates/paperless/paperless.yaml.template" "paperless/docker-compose.yaml"
+generate_from_template "templates/paperless/paperless.conf.template" "nginx/conf.d/paperless.conf"
 
 echo "Setup completed successfully!"

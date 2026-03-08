@@ -23,24 +23,28 @@ generate_from_template() {
 prepare_directories() {
     echo "Scaffolding directories and setting permissions..."
 
-    local dirs=(
-        "nginx" "nginx/conf.d"
-        "db" "db/postgres"
-        "n8n"
-        "data" "logs"
-        "data/paperless" "data/gitea" "data/navidrome" "data/synapse"
-        "gitea" "synapse" "navidrome" "paperless"
-    )
+    # Create the necessary directory structure
+    local base_dirs=("nginx/conf.d" "db/postgres" "n8n" "data/paperless" "data/gitea" "data/navidrome" "data/synapse")
 
-    for d in "${dirs[@]}"; do
+    for d in "${base_dirs[@]}"; do
         if [ ! -d "$d" ]; then
             mkdir -p "$d"
         fi
-
-        sudo chown -R $(id -u):$(id -g) "$d"
-        chmod -R 777 "$d"
     done
-    echo "Directories are ready and owned by $(whoami)."
+
+    # Services running as UID 1000 (n8n, Gitea, Navidrome, Paperless)
+    # Using 755 permissions for better security and compatibility
+    echo "Setting permissions for UID 1000 services..."
+    sudo chown -R 1000:1000 n8n data/gitea data/navidrome data/paperless
+    chmod -R 755 n8n data/gitea data/navidrome data/paperless
+
+    # Database (Postgres typically requires UID 999 or 70)
+    # Strict 700 permissions are mandatory for Postgres data directories
+    echo "Setting strict permissions for PostgreSQL..."
+    sudo chown -R 999:999 db/postgres
+    chmod -R 700 db/postgres
+
+    echo "Directories are ready with correct ownership and secure permissions."
 }
 
 echo "Starting Homelab creation..."

@@ -12,8 +12,6 @@ services:
     restart: always
     depends_on:
       - broker
-    ports:
-      - "8000:8000"
     environment:
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_DBHOST: db
@@ -22,6 +20,7 @@ services:
       PAPERLESS_DBPASS: ${POSTGRES_PASSWORD}
       PAPERLESS_URL: https://docs.${DOMAIN}
       PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+      PAPERLESS_TRUSTED_PROXIES: 172.16.0.0/12,192.168.0.0/16,10.0.0.0/8
     volumes:
       - ../data/paperless/data:/usr/src/paperless/data
       - ../data/paperless/media:/usr/src/paperless/media

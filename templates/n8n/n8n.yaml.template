@@ -8,6 +8,10 @@ services:
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
       - WEBHOOK_URL=https://n8n.${DOMAIN}/
+      - N8N_SECURE_COOKIE=true
+      - N8N_PUSH_BACKEND=websocket
+    volumes:
+      - ../data/n8n:/home/node/.n8n
     networks:
       - ${SHARED_NETWORK}
 

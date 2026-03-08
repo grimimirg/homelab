@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       ND_MUSICFOLDER: /music
-      ND_BASEURL: /music
+      ND_BASEURL: ""
       ND_PORT: 4533
     volumes:
       - ../data/navidrome:/data

@@ -11,7 +11,7 @@ generate_from_template() {
 
     echo "Generating $output_file..."
 
-    if [[ "$template_file" == *.conf.template ]]; then
+    if [[ "$template_file" == *.conf.template || "$template_file" == *.yaml.template ]]; then
         sed -e "s/\${DOMAIN}/$DOMAIN/g" \
             -e 's/${DOLLAR}/$/g' \
             "$template_file" > "$output_file"

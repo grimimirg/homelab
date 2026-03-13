@@ -73,6 +73,16 @@ for var in "${REQUIRED_VARS[@]}"; do
     fi
 done
 
+echo "======================="
+echo "DEBUG: Values"
+echo "======================="
+
+for var in "${REQUIRED_VARS[@]}"; do
+    echo "${!var}"
+done
+
+echo "======================="
+
 echo "Variables validation passed. Exporting..."
 export "${REQUIRED_VARS[@]}"
 

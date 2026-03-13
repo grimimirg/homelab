@@ -102,25 +102,40 @@ data directories. **This will delete your databases.**
 
 # No-IP DUC v3 Configuration Guide
 
-This document explains how to run the **No-IP Dynamic Update Client (DUC) v3** as a background service on Linux.
+Here below 3 ways on how to run the **No-IP Dynamic Update Client (DUC) v3**
 
 - - -
 
-## Method 1: Direct Daemon Command
+## Method 1: On-Demand
+
+Use this method to run the process only once manually.
+
+```
+noip-duc --username [username] \\
+   --password [password] \\
+   --hostnames [group] \\ # It can be found in https://my.noip.com/ddns-keys
+   --once
+```
+
+- - -
+
+## Method 2: Direct Daemon
 
 Use this built-in method to fork the process into the background manually. This creates a PID file to track the process.
 
 ```
 noip-duc --username [username] \\
    --password [password] \\
+   --hostnames [group] \\  # It can be found in https://my.noip.com/ddns-keys
    --daemonize \\
    --daemon-user nobody \\
    --daemon-group nogroup \\
-   --daemon-pid-file /var/run/noip-duc.pid # Ensure the path to noip-duc is correct (check with 'which noip-duc')
+   --daemon-pid-file /var/run/noip-duc.pid
 ```
+
 - - -
 
-## Method 2: Systemd Service (Recommended)
+## Method 3: Systemd Service (Recommended)
 
 Systemd ensures the client starts automatically after a reboot and restarts if the process crashes.
 
@@ -142,7 +157,7 @@ sudo nano /etc/systemd/system/noip-duc.service
 [Service]
    Type=simple
    # Ensure the path to noip-duc is correct (check with 'which noip-duc')
-   ExecStart=/usr/local/bin/noip-duc --username [username] --password [password]
+   ExecStart=/usr/bin/noip-duc --username [username] --password [password]
    Restart=always
    RestartSec=30
 

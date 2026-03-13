@@ -98,3 +98,81 @@ data directories. **This will delete your databases.**
 ```
 ./cleanup.sh
 ```
+
+
+# No-IP DUC v3 Configuration Guide
+
+This document explains how to run the **No-IP Dynamic Update Client (DUC) v3** as a background service on Linux.
+
+- - -
+
+## Method 1: Direct Daemon Command
+
+Use this built-in method to fork the process into the background manually. This creates a PID file to track the process.
+
+```
+noip-duc --username [username] \\
+   --password [password] \\
+   --daemonize \\
+   --daemon-user nobody \\
+   --daemon-group nogroup \\
+   --daemon-pid-file /var/run/noip-duc.pid # Ensure the path to noip-duc is correct (check with 'which noip-duc')
+```
+- - -
+
+## Method 2: Systemd Service (Recommended)
+
+Systemd ensures the client starts automatically after a reboot and restarts if the process crashes.
+
+### 1\. Create the Service File
+
+Open a terminal and run:
+
+```
+sudo nano /etc/systemd/system/noip-duc.service
+```
+
+### 2\. Paste the following configuration
+
+```
+[Unit]
+   Description=No-IP Dynamic Update Client
+   After=network.target
+
+[Service]
+   Type=simple
+   # Ensure the path to noip-duc is correct (check with 'which noip-duc')
+   ExecStart=/usr/local/bin/noip-duc --username [username] --password [password]
+   Restart=always
+   RestartSec=30
+
+[Install]
+   WantedBy=multi-user.target
+```
+
+### 3\. Enable and Start
+
+#### Reload systemd to recognize the new service
+```
+sudo systemctl daemon-reload
+```
+
+#### Enable service to start on boot
+
+```
+sudo systemctl enable noip-duc
+```
+
+#### Start the service immediately
+
+```
+sudo systemctl start noip-duc
+```
+
+### 4\. Check Status
+
+```
+sudo systemctl status noip-duc
+```
+
+**Security Tip:** To avoid leaving your password in a plain text file, consider using **Environment Variables** in a protected `.conf` file as mentioned in the No-IP advanced documentation.

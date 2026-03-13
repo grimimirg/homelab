@@ -99,12 +99,12 @@ data directories. **This will delete your databases.**
 ./cleanup.sh
 ```
 
+- - -
 
-# No-IP DUC v3 Configuration Guide
+# Expose the homelab via No-IP DUC
 
 Here below 3 ways on how to run the **No-IP Dynamic Update Client (DUC) v3**
 
-- - -
 
 ## Method 1: On-Demand
 
@@ -116,8 +116,6 @@ noip-duc --username [username] \\
    --hostnames [group] \\ # It can be found in https://my.noip.com/ddns-keys
    --once
 ```
-
-- - -
 
 ## Method 2: Direct Daemon
 
@@ -132,8 +130,6 @@ noip-duc --username [username] \\
    --daemon-group nogroup \\
    --daemon-pid-file /var/run/noip-duc.pid
 ```
-
-- - -
 
 ## Method 3: Systemd Service (Recommended)
 

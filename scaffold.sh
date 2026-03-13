@@ -9,11 +9,13 @@ generate_from_template() {
         exit 1
     fi
 
+    mkdir -p "$(dirname "$output_file")"
+
     echo "Generating $output_file..."
 
     if [[ "$template_file" == *.conf.template || "$template_file" == *.yaml.template ]]; then
         sed -e "s/\${DOMAIN}/$DOMAIN/g" \
-            -e 's/${DOLLAR}/$/g' \
+            -e "s/${DOLLAR}/$/g" \
             "$template_file" > "$output_file"
     else
         envsubst < "$template_file" > "$output_file"

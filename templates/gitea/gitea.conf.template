@@ -1,10 +1,7 @@
 server {
     listen 80;
     server_name git.${DOMAIN};
-
-    location / {
-        return 301 https://${DOLLAR}host${DOLLAR}request_uri;
-    }
+    return 301 https://${DOLLAR}host${DOLLAR}request_uri;
 }
 
 server {

@@ -1,18 +1,15 @@
-# Matrix HTTP (Redirect & Discovery)
 server {
     listen 80;
-    server_name ${DOMAIN};
+    server_name synapse.${DOMAIN};
 
     location /.well-known/matrix/server {
-        return 200 '{"m.server": "${DOMAIN}:8448"}';
+        return 200 '{"m.server": "synapse.${DOMAIN}:8448"}';
         add_header Content-Type application/json;
-        add_header Access-Control-Allow-Origin *;
     }
 
     location /.well-known/matrix/client {
-        return 200 '{"m.homeserver":{"base_url":"https://${DOMAIN}"}}';
+        return 200 '{"m.homeserver":{"base_url":"https://synapse.${DOMAIN}"}}';
         add_header Content-Type application/json;
-        add_header Access-Control-Allow-Origin *;
     }
 
     location / {
@@ -20,11 +17,9 @@ server {
     }
 }
 
-# Matrix HTTPS (Client API)
 server {
     listen 443 ssl;
-    server_name ${DOMAIN};
-
+    server_name synapse.${DOMAIN};
     ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
 
@@ -41,11 +36,9 @@ server {
     }
 }
 
-# Federation Server (Port 8448)
 server {
     listen 8448 ssl;
-    server_name ${DOMAIN};
-
+    server_name synapse.${DOMAIN};
     ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
 

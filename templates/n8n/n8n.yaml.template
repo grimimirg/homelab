@@ -2,7 +2,7 @@ services:
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n
-    user: "1000:1000"
+    user: ${HOST_UID}:${HOST_GID}
     restart: always
     environment:
       - N8N_HOST=n8n.${DOMAIN}
@@ -11,8 +11,9 @@ services:
       - WEBHOOK_URL=https://n8n.${DOMAIN}/
       - N8N_SECURE_COOKIE=true
       - N8N_PUSH_BACKEND=websocket
+      - N8N_USER_FOLDER=/data
     volumes:
-      - ../data/n8n:/home/node/.n8n
+      - ../data/n8n:/data
     networks:
       - ${SHARED_NETWORK}
 

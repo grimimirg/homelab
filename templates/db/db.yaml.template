@@ -2,6 +2,7 @@ services:
   shared_postgres:
     image: postgres:15
     container_name: shared_postgres
+    user: ${HOST_UID}:${HOST_GID}
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}

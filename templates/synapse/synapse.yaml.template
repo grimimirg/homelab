@@ -2,6 +2,7 @@ services:
   synapse:
     image: matrixdotorg/synapse:latest
     container_name: synapse
+    # user: ${HOST_UID}:${HOST_GID}
     restart: always
     environment:
       - SYNAPSE_SERVER_NAME=${DOMAIN}
@@ -9,13 +10,13 @@ services:
     volumes:
       - ../data:/data
       - ../logs:/var/log/synapse
-    networks:
-      - ${SHARED_NETWORK}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - ${SHARED_NETWORK}
 
 networks:
   ${SHARED_NETWORK}:

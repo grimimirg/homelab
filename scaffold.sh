@@ -26,7 +26,7 @@ prepare_directories() {
     echo "Scaffolding directories and setting permissions..."
 
     # Create the necessary directory structure
-    local base_dirs=("nginx/conf.d" "db/postgres" "n8n" "data/paperless" "data/gitea" "data/navidrome" "data/synapse")
+    local base_dirs=("nginx/conf.d" "db/postgres" "data/n8n" "data/paperless" "data/gitea" "data/navidrome" "data/synapse")
 
     for d in "${base_dirs[@]}"; do
         if [ ! -d "$d" ]; then
@@ -34,16 +34,15 @@ prepare_directories() {
         fi
     done
 
-    # Services running as UID 1000 (n8n, Gitea, Navidrome, Paperless)
+    # Services running as current user (n8n, Gitea, Navidrome, Paperless)
     # Using 755 permissions for better security and compatibility
-    echo "Setting permissions for UID 1000 services..."
-    sudo chown -R 1000:1000 n8n data/gitea data/navidrome data/paperless
-    chmod -R 755 n8n data/gitea data/navidrome data/paperless
+    echo "Setting permissions for UID $HOST_UID services..."
+    sudo chown -R $HOST_UID:$HOST_GID data/n8n data/gitea data/navidrome data/paperless
+    chmod -R 755 data/n8n data/gitea data/navidrome data/paperless
 
-    # Database (Postgres typically requires UID 999 or 70)
     # Strict 700 permissions are mandatory for Postgres data directories
     echo "Setting strict permissions for PostgreSQL..."
-    sudo chown -R 999:999 db/postgres
+    sudo chown -R $HOST_UID:$HOST_GID db/postgres
     chmod -R 700 db/postgres
 
     echo "Directories are ready with correct ownership and secure permissions."
@@ -57,6 +56,12 @@ else
     echo "ERROR: .env not found!"
     exit 1
 fi
+
+export HOST_UID=$(id -u)
+export HOST_GID=$(id -g)
+
+echo "Current HOST_UID: $HOST_UID"
+echo "Current HOST_GID: $HOST_GID"
 
 REQUIRED_VARS=(
     "DOMAIN" "EMAIL" "SHARED_NETWORK" "POSTGRES_USER" "POSTGRES_PASSWORD"

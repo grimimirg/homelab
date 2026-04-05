@@ -2,6 +2,7 @@ services:
   nginx:
     image: nginx:alpine
     container_name: nginx
+    user: ${HOST_UID}:${HOST_GID}
     restart: always
     ports:
       - "80:80"

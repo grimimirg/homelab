@@ -2,13 +2,13 @@ services:
   synapse:
     image: matrixdotorg/synapse:latest
     container_name: synapse
-    # user: ${HOST_UID}:${HOST_GID}
+    user: ${HOST_UID}:${HOST_GID}
     restart: always
     environment:
       - SYNAPSE_SERVER_NAME=${DOMAIN}
       - SYNAPSE_REPORT_STATS='no'
     volumes:
-      - ../data:/data
+      - ../data/synapse:/data
       - ../logs:/var/log/synapse
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8008/health"]

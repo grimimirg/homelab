@@ -25,8 +25,8 @@ generate_from_template() {
 prepare_directories() {
     echo "Scaffolding directories and setting permissions..."
 
-    # Create the necessary directory structure
-    local base_dirs=("nginx/conf.d" "db/postgres" "data/n8n" "data/paperless" "data/gitea" "data/navidrome" "data/synapse")
+    local base_dirs=("nginx/conf.d" "db/postgres" "data/n8n" "data/paperless"
+    "data/gitea" "data/navidrome" "data/synapse" "logs")
 
     for d in "${base_dirs[@]}"; do
         if [ ! -d "$d" ]; then
@@ -34,13 +34,10 @@ prepare_directories() {
         fi
     done
 
-    # Services running as current user (n8n, Gitea, Navidrome, Paperless)
-    # Using 755 permissions for better security and compatibility
     echo "Setting permissions for UID $HOST_UID services..."
     sudo chown -R $HOST_UID:$HOST_GID data/n8n data/gitea data/navidrome data/paperless
     chmod -R 755 data/n8n data/gitea data/navidrome data/paperless
 
-    # Strict 700 permissions are mandatory for Postgres data directories
     echo "Setting strict permissions for PostgreSQL..."
     sudo chown -R $HOST_UID:$HOST_GID db/postgres
     chmod -R 700 db/postgres
@@ -111,8 +108,8 @@ generate_from_template "templates/n8n/n8n.conf.template" "nginx/conf.d/n8n.conf"
 # SYNAPSE
 generate_from_template "templates/synapse/synapse.yaml.template" "synapse/docker-compose.yaml"
 generate_from_template "templates/synapse/synapse.conf.template" "nginx/conf.d/synapse.conf"
-generate_from_template "templates/homeserver.yaml.template" "data/homeserver.yaml"
-cp templates/log.config.template data/log.config
+generate_from_template "templates/homeserver.yaml.template" "data/synapse/homeserver.yaml"
+cp templates/log.config.template data/synapse/log.config
 
 # GITEA
 generate_from_template "templates/gitea/gitea.yaml.template" "gitea/docker-compose.yaml"

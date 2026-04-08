@@ -1,12 +1,12 @@
 server {
     listen 80;
-    server_name music.${DOMAIN};
+    server_name music.${DOMAIN} music.localhost music.jarvis;
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name music.${DOMAIN};
+    server_name music.${DOMAIN} music.localhost music.jarvis;
 
     ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;

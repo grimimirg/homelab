@@ -1,12 +1,12 @@
 server {
     listen 80;
-    server_name docs.${DOMAIN};
+    server_name docs.${DOMAIN} docs.localhost docs.jarvis;
     return 301 https://${DOLLAR}host${DOLLAR}request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name docs.${DOMAIN};
+    server_name docs.${DOMAIN} docs.localhost docs.jarvis;
     client_max_body_size 100M;
 
     ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;

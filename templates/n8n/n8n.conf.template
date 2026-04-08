@@ -1,12 +1,32 @@
 server {
     listen 80;
     server_name n8n.${DOMAIN} n8n.localhost n8n.jarvis;
-    return 301 https://$host$request_uri;
+
+    if ($host = n8n.${DOMAIN}) {
+        return 301 https://$host$request_uri;
+    }
+
+    location / {
+        proxy_pass http://n8n:5678;
+
+        proxy_set_header Host ${DOLLAR}host;
+        proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+        proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto ${DOLLAR}scheme;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade ${DOLLAR}http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 86400s;
+    }
+
 }
 
 server {
     listen 443 ssl;
-    server_name n8n.${DOMAIN} n8n.localhost n8n.jarvis;
+    server_name n8n.${DOMAIN};
 
     ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;

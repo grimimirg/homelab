@@ -5,12 +5,8 @@ services:
     user: ${HOST_UID}:${HOST_GID}
     restart: always
     environment:
-      - N8N_HOST=n8n.${DOMAIN}
+      - N8N_HOST=0.0.0.0
       - N8N_PORT=5678
-      - N8N_PROTOCOL=https
-      - WEBHOOK_URL=https://n8n.${DOMAIN}/
-      - N8N_SECURE_COOKIE=true
-      - N8N_PUSH_BACKEND=websocket
       - N8N_USER_FOLDER=/data
     ports:
         - "5678:5678"

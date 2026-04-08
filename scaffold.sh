@@ -56,6 +56,7 @@ fi
 
 export HOST_UID=$(id -u)
 export HOST_GID=$(id -g)
+export DOLLAR='$'
 
 echo "Current HOST_UID: $HOST_UID"
 echo "Current HOST_GID: $HOST_GID"

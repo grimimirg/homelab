@@ -12,7 +12,7 @@ else
 fi
 
 echo "Starting Database..."
-docker-compose -f db/docker-compose.yaml up -d
+docker compose -f db/docker-compose.yaml up -d
 echo "Waiting for Database to initialize..."
 
 echo "Waiting for Postgres to be ready..."
@@ -26,24 +26,24 @@ echo "Database is up! Provisioning..."
 ./init-db.sh
 
 echo "Starting n8n..."
-docker-compose -f n8n/docker-compose.yaml up -d
+docker compose -f n8n/docker-compose.yaml up -d
 
 echo "Starting Synapse..."
-docker-compose -f synapse/docker-compose.yaml up -d
+docker compose -f synapse/docker-compose.yaml up -d
 
 echo "Starting Gitea..."
-docker-compose -f gitea/docker-compose.yaml up -d
+docker compose -f gitea/docker-compose.yaml up -d
 
 echo "Starting Navidrome..."
-docker-compose -f navidrome/docker-compose.yaml up -d
+docker compose -f navidrome/docker-compose.yaml up -d
 
 echo "Starting Paperless..."
-docker-compose -f paperless/docker-compose.yaml up -d
+docker compose -f paperless/docker-compose.yaml up -d
 
 sleep 2
 
 echo "Starting Nginx..."
-docker-compose -f nginx/docker-compose.yaml up -d
+docker compose -f nginx/docker-compose.yaml up -d
 
 echo "Complete! All services are now running."
 echo "Check their status with: docker-compose -f <folder>/docker-compose.yaml ps"

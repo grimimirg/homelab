@@ -8,7 +8,7 @@ echo "Stopping all homelab services..."
 for dir in "${SERVICES[@]}"; do
     if [ -f "$dir/docker-compose.yaml" ]; then
         echo "Stopping service in $dir..."
-        docker-compose -f "$dir/docker-compose.yaml" stop
+        docker compose -f "$dir/docker-compose.yaml" stop
     else
         echo "No docker-compose.yaml found in $dir, skipping."
     fi

@@ -15,7 +15,7 @@ generate_from_template() {
 
     if [[ "$template_file" == *.conf.template ]]; then
         sed -e "s/\${DOMAIN}/$DOMAIN/g" \
-            -e "s/${DOLLAR}/$/g" \
+            -e "s/\${DOLLAR}/\$/g" \
             "$template_file" > "$output_file"
     else
         envsubst < "$template_file" > "$output_file"

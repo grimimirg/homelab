@@ -49,8 +49,13 @@ fi
 echo ""
 echo "Generating password hash..."
 
-# Generate hash using Authelia
-hash=$(docker run --rm authelia/authelia:latest authelia crypto hash generate argon2 --password "$new_password" | grep "Digest:" | awk '{print $2}')
+# Check if authelia container is running
+if ! docker ps --format '{{.Names}}' | grep -q '^authelia$'; then
+    echo "ERROR: Authelia container is not running!"
+    exit 1
+else
+    hash=$(docker exec authelia authelia crypto hash generate argon2 --password "$new_password" | grep "Digest:" | awk '{print $2}')
+fi
 
 if [ -z "$hash" ]; then
     echo "ERROR: Failed to generate password hash!"
@@ -83,5 +88,5 @@ echo "  Password Changed Successfully!"
 echo "========================================="
 echo ""
 echo "User: $username"
-echo "You can now login with the new password at: https://auth.${DOMAIN:-yourdomain.com}"
+echo "You can now login with the new password."
 echo ""

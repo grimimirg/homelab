@@ -669,6 +669,27 @@ sudo ufw allow 8448/tcp
 sudo ufw enable
 ```
 
+## SSL Certificate Cleanup
+
+If you need to remove existing certificates before regenerating them:
+
+```bash
+# List existing certificates
+sudo certbot certificates
+
+# Delete certificate for your domain
+sudo certbot delete --cert-name your.domain
+
+# Clean local SSL directory
+rm -rf ssl/*
+```
+
+After cleanup, regenerate certificates with:
+
+```bash
+./setup-ssl.sh
+```
+
 ## SSL Certificate Renewal
 
 Let's Encrypt certificates expire every 90 days. Set up automatic renewal:

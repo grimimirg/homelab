@@ -69,13 +69,33 @@ echo ""
 cp data/authelia/users_database.yml data/authelia/users_database.yml.backup
 echo "✓ Backup created: data/authelia/users_database.yml.backup"
 
-# Escape special characters in hash for sed
-escaped_hash=$(echo "$hash" | sed 's/[\/&]/\\&/g')
+# Escape special characters in hash for sed (escape $, /, &, and \)
+escaped_hash=$(echo "$hash" | sed 's/[\$\/&\\]/\\&/g')
 
-# Replace password hash for the user
-sed -i "/^  $username:/,/^    password:/ s|^    password:.*|    password: \"$escaped_hash\"|" data/authelia/users_database.yml
+user_line=$(grep -n "^  $username:" data/authelia/users_database.yml | cut -d: -f1)
 
-echo "✓ Password updated in users_database.yml"
+if [ -z "$user_line" ]; then
+    echo "ERROR: Could not find user in file!"
+    exit 1
+fi
+
+# Find the password line after the user line (should be within next 5 lines)
+password_line=$(tail -n +$user_line data/authelia/users_database.yml | grep -n "^    password:" | head -1 | cut -d: -f1)
+password_line=$((user_line + password_line - 1))
+
+# Replace the password line
+sed -i "${password_line}s|.*|    password: \"$escaped_hash\"|" data/authelia/users_database.yml
+
+# Verify the change
+new_hash_in_file=$(sed -n "${password_line}p" data/authelia/users_database.yml | sed 's/.*password: "\(.*\)".*/\1/')
+
+if [ "$new_hash_in_file" = "$hash" ]; then
+    echo "✓ Password updated in users_database.yml"
+else
+    echo "⚠ WARNING: Password may not have been updated correctly!"
+    echo "Expected hash: $hash"
+    echo "Found in file: $new_hash_in_file"
+fi
 echo ""
 
 # Restart Authelia

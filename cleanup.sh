@@ -12,6 +12,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     echo "Removing services..."
     docker compose -f db/docker-compose.yaml down 2>/dev/null
     docker compose -f nginx/docker-compose.yaml down 2>/dev/null
+    docker compose -f authelia/docker-compose.yaml down 2>/dev/null
     docker compose -f n8n/docker-compose.yaml down 2>/dev/null
     docker compose -f synapse/docker-compose.yaml down 2>/dev/null
     docker compose -f gitea/docker-compose.yaml down 2>/dev/null

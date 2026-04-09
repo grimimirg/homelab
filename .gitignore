@@ -12,6 +12,7 @@ ssl/
 paperless/
 landing/
 logs/
+authelia/
 *.log
 
 .idea/

@@ -144,6 +144,10 @@ generate_from_template "templates/authelia/authelia.yaml.template" "authelia/doc
 generate_from_template "templates/authelia/authelia.conf.template" "nginx/conf.d/authelia.conf"
 generate_from_template "templates/authelia/configuration.yml.template" "data/authelia/configuration.yml"
 generate_from_template "templates/authelia/users_database.yml.template" "data/authelia/users_database.yml"
-cp templates/authelia/theme.css data/authelia/assets/theme.css 2>/dev/null || mkdir -p data/authelia/assets && cp templates/authelia/theme.css data/authelia/assets/theme.css
+
+# Copy shared theme CSS for both landing page and Authelia
+mkdir -p landing
+cp templates/landing/homelab-theme.css landing/homelab-theme.css
+cp templates/landing/homelab-theme.css landing/authelia-theme.css
 
 echo "Setup completed successfully!"

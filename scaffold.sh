@@ -26,7 +26,7 @@ prepare_directories() {
     echo "Scaffolding directories and setting permissions..."
 
     local base_dirs=("nginx/conf.d" "db/postgres" "data/n8n" "data/paperless"
-    "data/gitea" "data/navidrome" "data/synapse" "logs")
+    "data/gitea" "data/navidrome" "data/synapse" "data/authelia" "data/authelia/assets" "logs")
 
     for d in "${base_dirs[@]}"; do
         if [ ! -d "$d" ]; then
@@ -35,8 +35,8 @@ prepare_directories() {
     done
 
     echo "Setting permissions for UID $HOST_UID services..."
-    sudo chown -R $HOST_UID:$HOST_GID data/n8n data/gitea data/navidrome data/paperless
-    chmod -R 755 data/n8n data/gitea data/navidrome data/paperless
+    sudo chown -R $HOST_UID:$HOST_GID data/n8n data/gitea data/navidrome data/paperless data/authelia
+    chmod -R 755 data/n8n data/gitea data/navidrome data/paperless data/authelia
 
     echo "Setting strict permissions for PostgreSQL..."
     sudo chown -R $HOST_UID:$HOST_GID db/postgres
@@ -66,7 +66,9 @@ REQUIRED_VARS=(
     "GITEA_DB_USER" "GITEA_DB_PASS" "PAPERLESS_DB_USER" "PAPERLESS_DB_PASS"
     "PAPERLESS_SECRET_KEY" "SYNAPSE_DB_USER" "SYNAPSE_DB_PASS"
     "SYNAPSE_REGISTRATION_SHARED_SECRET" "NAVIDROME_MUSIC_FOLDER_PATH"
-    "SYNAPSE_DB_NAME" "PAPERLESS_DB_NAME" "GITEA_DB_NAME"
+    "SYNAPSE_DB_NAME" "PAPERLESS_DB_NAME" "GITEA_DB_NAME" "AUTHELIA_DB_NAME"
+    "AUTHELIA_DB_USER" "AUTHELIA_DB_PASS" "AUTHELIA_JWT_SECRET"
+    "AUTHELIA_SESSION_SECRET" "AUTHELIA_STORAGE_ENCRYPTION_KEY" "TZ"
 )
 
 for var in "${REQUIRED_VARS[@]}"; do
@@ -132,5 +134,12 @@ generate_from_template "templates/navidrome/navidrome.conf.template" "nginx/conf
 # PAPERLESS
 generate_from_template "templates/paperless/paperless.yaml.template" "paperless/docker-compose.yaml"
 generate_from_template "templates/paperless/paperless.conf.template" "nginx/conf.d/paperless.conf"
+
+# AUTHELIA
+generate_from_template "templates/authelia/authelia.yaml.template" "authelia/docker-compose.yaml"
+generate_from_template "templates/authelia/authelia.conf.template" "nginx/conf.d/authelia.conf"
+generate_from_template "templates/authelia/configuration.yml.template" "data/authelia/configuration.yml"
+generate_from_template "templates/authelia/users_database.yml.template" "data/authelia/users_database.yml"
+cp templates/authelia/theme.css data/authelia/assets/theme.css 2>/dev/null || mkdir -p data/authelia/assets && cp templates/authelia/theme.css data/authelia/assets/theme.css
 
 echo "Setup completed successfully!"

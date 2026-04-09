@@ -40,6 +40,9 @@ docker compose -f navidrome/docker-compose.yaml up -d
 echo "Starting Paperless..."
 docker compose -f paperless/docker-compose.yaml up -d
 
+echo "Starting Authelia..."
+docker compose -f authelia/docker-compose.yaml up -d
+
 sleep 2
 
 echo "Starting Nginx..."
@@ -47,3 +50,6 @@ docker compose -f nginx/docker-compose.yaml up -d
 
 echo "Complete! All services are now running."
 echo "Check their status with: docker-compose -f <folder>/docker-compose.yaml ps"
+echo ""
+echo "Access Authelia at: https://auth.${DOMAIN}"
+echo "Default login: admin / admin"

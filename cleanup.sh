@@ -22,7 +22,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     docker network rm "$SHARED_NETWORK" 2>/dev/null
 
     echo "Removing generated directories..."
-    rm -rf nginx db db/postgres n8n synapse data gitea navidrome paperless logs landing
+    rm -rf nginx db db/postgres n8n synapse data gitea navidrome paperless logs landing authelia
 
     echo "Cleanup complete!"
 else

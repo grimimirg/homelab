@@ -1,0 +1,19 @@
+services:
+  authelia:
+    image: authelia/authelia:latest
+    container_name: authelia
+    restart: unless-stopped
+    networks:
+      - ${SHARED_NETWORK}
+    volumes:
+      - ./data/authelia:/config
+    environment:
+      - TZ=${TZ}
+    expose:
+      - 9091
+    depends_on:
+      - db
+
+networks:
+  ${SHARED_NETWORK}:
+    external: true

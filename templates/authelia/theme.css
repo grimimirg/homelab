@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+:root {
+    --primary-color: #a8dadc;
+    --background-color: #1a1f2e;
+    --card-background: rgba(26, 31, 46, 0.6);
+    --text-color: #a8dadc;
+    --border-color: #a8dadc;
+}
+
+body {
+    font-family: 'Share Tech Mono', 'VT323', monospace !important;
+    background: #1a1f2e !important;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(168, 218, 220, 0.03) 0px,
+        rgba(168, 218, 220, 0.03) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 1;
+    animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100%); }
+}
+
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.95; }
+}
+
+#root {
+    animation: flicker 0.15s infinite;
+    position: relative;
+    z-index: 2;
+}
+
+.MuiPaper-root {
+    background: rgba(168, 218, 220, 0.08) !important;
+    border: 2px solid #a8dadc !important;
+    box-shadow: 0 0 15px rgba(168, 218, 220, 0.2) !important;
+}
+
+.MuiTypography-root,
+.MuiInputBase-input,
+.MuiFormLabel-root {
+    font-family: 'Share Tech Mono', monospace !important;
+    color: #a8dadc !important;
+    text-shadow: 0 0 5px rgba(168, 218, 220, 0.3);
+}
+
+.MuiButton-root {
+    font-family: 'VT323', monospace !important;
+    background: rgba(168, 218, 220, 0.15) !important;
+    border: 2px solid #a8dadc !important;
+    color: #a8dadc !important;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.MuiButton-root:hover {
+    background: rgba(168, 218, 220, 0.25) !important;
+    box-shadow: 0 0 20px rgba(168, 218, 220, 0.4) !important;
+    transform: scale(1.02);
+}
+
+.MuiOutlinedInput-root {
+    border-color: #a8dadc !important;
+}
+
+.MuiOutlinedInput-notchedOutline {
+    border-color: #a8dadc !important;
+}
+
+.MuiInputBase-root::before {
+    content: '$ ';
+    color: #8ab5b8;
+    margin-right: 5px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'VT323', monospace !important;
+    color: #b4d4e1 !important;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.MuiAlert-root {
+    background: rgba(168, 218, 220, 0.1) !important;
+    border: 1px solid #a8dadc !important;
+    color: #a8dadc !important;
+}

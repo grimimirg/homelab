@@ -14,6 +14,10 @@ deployment, and cleanup.
   - [2. SSL Setup](#2-ssl-setup)
   - [3. Deployment](#3-deployment)
   - [4. Start and Stop](#start-and-stop)
+- [Authentication](#authentication)
+  - [Authelia SSO](#authelia-sso)
+  - [First Login](#first-login)
+  - [Managing Users](#managing-users)
 - [Network Access](#network-access)
   - [Local Network Access](#local-network-access)
   - [External Access via No-IP](#external-access-via-no-ip)
@@ -38,6 +42,7 @@ The system is built on a modular design where each service has its own directory
 set of orchestration scripts.
 
 * **Reverse Proxy:** Nginx (Containerized).
+* **Authentication:** Authelia SSO (Single Sign-On).
 * **Database:** PostgreSQL (Centralized).
 * **Services:** Synapse, n8n, gitea, paperless, navidrome.
 * **Network:** Shared bridge network.
@@ -60,6 +65,12 @@ set of orchestration scripts.
 └── templates                                # IaC templates (categorized)
     ├── homeserver.yaml.template             # Synapse settings
     ├── log.config.template                  # Log settings
+    ├── authelia                             # Authelia SSO definitions
+    │   ├── authelia.conf.template           # Nginx proxy conf for authelia
+    │   ├── authelia.yaml.template           # Docker Compose template for authelia
+    │   ├── configuration.yml.template       # Authelia configuration
+    │   ├── users_database.yml.template      # User database
+    │   └── theme.css                        # Custom theme (terminal style)
     ├── db                                   # PostgreSQL configuration
     │   └── db.yaml.template                 # Docker Compose template for postgres
     ├── gitea                                # Gitea & DB definitions
@@ -129,10 +140,11 @@ This workflow uses a clear separation between infrastructure generation and serv
 Create a `.env` file in the project root with the following variables:
 
 | Variable                           | Description                                                                                 |
-|------------------------------------|---------------------------------------------------------------------------------------------|
+|------------------------------------|--------------------------------------------------------------------------------------------|
 | DOMAIN                             | The primary domain name used for SSL certificate issuance and public access.                |
 | EMAIL                              | Contact email address used by Let's Encrypt for SSL certificate notifications.              |
 | SHARED_NETWORK                     | The shared network used by containers to communicate with eachother.                        |
+| TZ                                 | Timezone for services (e.g., Europe/Rome, America/New_York, Asia/Tokyo).                   |
 | POSTGRES_USER                      | The administrative username for PostgreSQL, used by the init-db.sh script for provisioning. |
 | POSTGRES_PASSWORD                  | The master password for the PostgreSQL administrator account.                               |
 | GITEA_DB_USER                      | Dedicated database username for the Gitea service.                                          |
@@ -144,6 +156,12 @@ Create a `.env` file in the project root with the following variables:
 | SYNAPSE_DB_PASS                    | Dedicated database password for the Synapse service.                                        |
 | SYNAPSE_REGISTRATION_SHARED_SECRET | A security key required to authorize user registrations on your server.                     |
 | NAVIDROME_MUSIC_FOLDER_PATH        | The absolute path on your host server where your music library is stored.                   |
+| AUTHELIA_DB_NAME                   | Dedicated database name for the Authelia SSO service.                                       |
+| AUTHELIA_DB_USER                   | Dedicated database username for the Authelia service.                                       |
+| AUTHELIA_DB_PASS                   | Dedicated database password for the Authelia service.                                       |
+| AUTHELIA_JWT_SECRET                | Secret key for JWT token generation (auto-generated in .env).                               |
+| AUTHELIA_SESSION_SECRET            | Secret key for session encryption (auto-generated in .env).                                 |
+| AUTHELIA_STORAGE_ENCRYPTION_KEY    | Encryption key for sensitive data storage (auto-generated in .env).                         |
 
 ### 2. SSL Setup
 
@@ -157,6 +175,7 @@ This script will:
 - Install certbot if not present
 - Request a multi-domain certificate covering:
   - `yourdomain.com`
+  - `auth.yourdomain.com`
   - `git.yourdomain.com`
   - `n8n.yourdomain.com`
   - `music.yourdomain.com`
@@ -182,8 +201,9 @@ The `build.sh` script will:
 1. Create the shared Docker network
 2. Start PostgreSQL database
 3. Wait for database readiness
-4. Provision database users and schemas
-5. Start all services (nginx, gitea, n8n, navidrome, paperless, synapse)
+4. Provision database users and schemas (including Authelia)
+5. Start all services (authelia, nginx, gitea, n8n, navidrome, paperless, synapse)
+6. Display Authelia login credentials
 
 ### 4. Start and Stop
 
@@ -208,6 +228,139 @@ data directories. **This will delete your databases.**
 
 ---
 
+## Authentication
+
+### Authelia SSO
+
+This homelab uses **Authelia** as a Single Sign-On (SSO) solution to protect all services with centralized authentication.
+
+#### How It Works
+
+1. **All services are protected** - Landing page, Gitea, n8n, Navidrome, Paperless, and Synapse require authentication
+2. **Single login** - Login once at `https://auth.${DOMAIN}` and access all services
+3. **Session-based** - Sessions last 1 hour by default
+4. **Custom theme** - Login page uses the same retro/terminal style as the landing page
+
+#### Architecture
+
+```
+User → https://yourdomain.com
+  ↓
+Nginx checks authentication with Authelia
+  ↓
+Not authenticated? → Redirect to https://auth.yourdomain.com (login)
+  ↓
+Authenticated? → Show landing page with service links
+  ↓
+Click on service (e.g., Gitea) → Access granted automatically
+```
+
+### First Login
+
+After deployment, access the authentication portal:
+
+```bash
+# Open in browser
+https://auth.${DOMAIN}
+```
+
+**Default credentials:**
+- Username: `admin`
+- Password: `admin`
+
+**⚠️ Important:** Change the default password immediately after first login!
+
+### Managing Users
+
+#### View Current Users
+
+Users are stored in a file-based database:
+
+```bash
+cat data/authelia/users_database.yml
+```
+
+#### Add a New User
+
+1. Generate a password hash:
+
+```bash
+docker run --rm authelia/authelia:latest authelia crypto hash generate argon2 --password 'your_password_here'
+```
+
+2. Edit the users database:
+
+```bash
+nano data/authelia/users_database.yml
+```
+
+3. Add the new user:
+
+```yaml
+users:
+  admin:
+    disabled: false
+    displayname: "Administrator"
+    password: "$argon2id$v=19$m=65536,t=3,p=4$..."
+    email: admin@yourdomain.com
+    groups:
+      - admins
+  
+  newuser:
+    disabled: false
+    displayname: "New User"
+    password: "$argon2id$v=19$m=65536,t=3,p=4$..."  # Generated hash
+    email: newuser@yourdomain.com
+    groups:
+      - users
+```
+
+4. Restart Authelia:
+
+```bash
+docker compose -f authelia/docker-compose.yaml restart
+```
+
+#### Change Password
+
+1. Generate new password hash (see above)
+2. Update the hash in `data/authelia/users_database.yml`
+3. Restart Authelia
+
+#### Disable a User
+
+Set `disabled: true` in the user's entry:
+
+```yaml
+users:
+  olduser:
+    disabled: true
+    displayname: "Old User"
+    password: "$argon2id$v=19$m=65536,t=3,p=4$..."
+    email: olduser@yourdomain.com
+    groups:
+      - users
+```
+
+### Session Configuration
+
+Sessions are configured in `data/authelia/configuration.yml`:
+
+```yaml
+session:
+  expiration: 1h        # Session expires after 1 hour
+  inactivity: 1h        # Session expires after 1 hour of inactivity
+  remember_me_duration: 1M  # "Remember me" lasts 1 month
+```
+
+To change session duration:
+
+1. Edit `templates/authelia/configuration.yml.template`
+2. Run `./scaffold.sh` to regenerate configs
+3. Restart Authelia
+
+---
+
 ## Network Access
 
 ### Wildcard DNS Configuration
@@ -226,12 +379,13 @@ This single record will automatically route all subdomains (`git.yourdomain.com`
 - ✅ Simplified DNS management
 
 **After enabling wildcard DNS:**
-- `yourdomain.com` → Landing page
-- `git.yourdomain.com` → Gitea
-- `n8n.yourdomain.com` → n8n
-- `music.yourdomain.com` → Navidrome
-- `docs.yourdomain.com` → Paperless
-- `synapse.yourdomain.com` → Matrix
+- `yourdomain.com` → Landing page (protected)
+- `auth.yourdomain.com` → Authelia SSO login
+- `git.yourdomain.com` → Gitea (protected)
+- `n8n.yourdomain.com` → n8n (protected)
+- `music.yourdomain.com` → Navidrome (protected)
+- `docs.yourdomain.com` → Paperless (protected)
+- `synapse.yourdomain.com` → Matrix (protected)
 
 ---
 
@@ -774,6 +928,74 @@ cat gitea-backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER} -d gi
    docker exec nginx netstat -tulpn | grep :80
    ```
 
+#### Authentication Loop / Redirect Issues
+
+**Symptom:** Redirected to login page repeatedly, or "401 Unauthorized" errors
+
+**Possible Causes:**
+- Authelia container not running
+- Session cookie issues
+- Time synchronization problems
+
+**Solutions:**
+
+1. Check Authelia is running:
+   ```bash
+   docker ps | grep authelia
+   ```
+
+2. Check Authelia logs:
+   ```bash
+   docker logs authelia
+   ```
+
+3. Verify Authelia database connection:
+   ```bash
+   docker exec authelia cat /config/configuration.yml | grep -A 5 storage
+   ```
+
+4. Clear browser cookies for your domain
+
+5. Check system time is synchronized:
+   ```bash
+   timedatectl status
+   ```
+
+6. Restart Authelia:
+   ```bash
+   docker compose -f authelia/docker-compose.yaml restart
+   ```
+
+#### Cannot Login to Authelia
+
+**Symptom:** Login fails with "Incorrect username or password"
+
+**Solutions:**
+
+1. Verify user exists in database:
+   ```bash
+   cat data/authelia/users_database.yml
+   ```
+
+2. Check if user is disabled:
+   ```yaml
+   users:
+     admin:
+       disabled: false  # Should be false
+   ```
+
+3. Reset admin password to default:
+   ```bash
+   # Edit users database
+   nano data/authelia/users_database.yml
+   
+   # Replace admin password hash with default (admin/admin)
+   password: "$argon2id$v=19$m=65536,t=3,p=4$YnJpbWlyaWdob21lbGFi$VZzFqLFoE3K3xN5qH8vN5xGqJ8mP2wR4tY6uI9oP0qE"
+   
+   # Restart Authelia
+   docker compose -f authelia/docker-compose.yaml restart
+   ```
+
 ---
 
 ## Security
@@ -784,9 +1006,10 @@ cat gitea-backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER} -d gi
 
 After initial setup, change all default passwords:
 
-1. **PostgreSQL admin password** - Update in `.env` and recreate database
-2. **Service-specific passwords** - Update in each service's web interface
-3. **Synapse registration secret** - Update in `.env` and regenerate config
+1. **Authelia admin password** - Login to `https://auth.${DOMAIN}` and change password immediately
+2. **PostgreSQL admin password** - Update in `.env` and recreate database
+3. **Service-specific passwords** - Update in each service's web interface (note: with SSO, you may not need service-specific logins)
+4. **Synapse registration secret** - Update in `.env` and regenerate config
 
 #### Firewall Configuration
 
@@ -885,6 +1108,7 @@ docker compose -f */docker compose.yaml pull
 | Service    | Port | Access Via                          |
 |------------|------|-------------------------------------|
 | PostgreSQL | 5432 | Internal network only               |
+| Authelia   | 9091 | `auth.${DOMAIN}` via nginx          |
 | Gitea      | 3000 | `git.${DOMAIN}` via nginx           |
 | n8n        | 5678 | `n8n.${DOMAIN}` via nginx           |
 | Navidrome  | 4533 | `music.${DOMAIN}` via nginx         |
@@ -893,3 +1117,5 @@ docker compose -f */docker compose.yaml pull
 | Redis      | 6379 | Paperless only                      |
 
 **Note:** Only nginx exposes ports to the host. All other services are accessed through nginx reverse proxy.
+
+**Authentication:** All services (except Authelia itself) require authentication via Authelia SSO.

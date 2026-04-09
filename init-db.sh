@@ -49,6 +49,7 @@ provision_db() {
 # Gitea and Paperless use the default system collation
 provision_db "$GITEA_DB_NAME" "$GITEA_DB_USER" "$GITEA_DB_PASS"
 provision_db "$PAPERLESS_DB_NAME" "$PAPERLESS_DB_USER" "$PAPERLESS_DB_PASS"
+provision_db "$AUTHELIA_DB_NAME" "$AUTHELIA_DB_USER" "$AUTHELIA_DB_PASS"
 
 # Synapse specifically requires 'C' collation
 provision_db "$SYNAPSE_DB_NAME" "$SYNAPSE_DB_USER" "$SYNAPSE_DB_PASS" "C"

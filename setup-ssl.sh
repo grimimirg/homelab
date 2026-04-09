@@ -37,6 +37,7 @@ sudo certbot certonly \
     --agree-tos \
     --email "$EMAIL" \
     -d "$DOMAIN" \
+    -d "auth.$DOMAIN" \
     -d "git.$DOMAIN" \
     -d "n8n.$DOMAIN" \
     -d "music.$DOMAIN" \

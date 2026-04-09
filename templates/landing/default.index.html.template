@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homelab Services</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .service-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .service-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .service-description {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .service-url {
+            font-size: 0.85rem;
+            color: #667eea;
+            font-family: monospace;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Homelab Services</h1>
+    </header>
+
+    <div class="services-grid">
+        <a href="http://git.${DOMAIN}" class="service-card">
+            <div class="service-icon">🦊</div>
+            <div class="service-name">Gitea</div>
+            <div class="service-description">Git repository hosting</div>
+            <div class="service-url">git.${DOMAIN}</div>
+        </a>
+
+        <a href="http://n8n.${DOMAIN}" class="service-card">
+            <div class="service-icon">🔗</div>
+            <div class="service-name">n8n</div>
+            <div class="service-description">Workflow automation</div>
+            <div class="service-url">n8n.${DOMAIN}</div>
+        </a>
+
+        <a href="http://music.${DOMAIN}" class="service-card">
+            <div class="service-icon">🎵</div>
+            <div class="service-name">Navidrome</div>
+            <div class="service-description">Music streaming server</div>
+            <div class="service-url">music.${DOMAIN}</div>
+        </a>
+
+        <a href="http://docs.${DOMAIN}" class="service-card">
+            <div class="service-icon">📄</div>
+            <div class="service-name">Paperless-ngx</div>
+            <div class="service-description">Document management</div>
+            <div class="service-url">docs.${DOMAIN}</div>
+        </a>
+
+        <a href="http://synapse.${DOMAIN}" class="service-card">
+            <div class="service-icon">💬</div>
+            <div class="service-name">Synapse</div>
+            <div class="service-description">Matrix server</div>
+            <div class="service-url">synapse.${DOMAIN}</div>
+        </a>
+    </div>
+</div>
+</body>
+</html>

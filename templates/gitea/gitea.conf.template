@@ -2,8 +2,8 @@ server {
     listen 80;
     server_name git.${DOMAIN} git.localhost git.jarvis;
 
-    if ($host = git.${DOMAIN}) {
-        return 301 https://$host$request_uri;
+    if (${DOLLAR}host = git.${DOMAIN}) {
+        return 301 https://${DOLLAR}host${DOLLAR}request_uri;
     }
 
     location / {
@@ -19,7 +19,6 @@ server {
         proxy_send_timeout 600;
         proxy_read_timeout 600;
     }
-
 }
 
 server {

@@ -2,8 +2,8 @@ server {
     listen 80;
     server_name docs.${DOMAIN} docs.localhost docs.jarvis;
 
-    if ($host = docs.${DOMAIN}) {
-        return 301 https://$host$request_uri;
+    if (${DOLLAR}host = docs.${DOMAIN}) {
+        return 301 https://${DOLLAR}host${DOLLAR}request_uri;
     }
 
     location / {

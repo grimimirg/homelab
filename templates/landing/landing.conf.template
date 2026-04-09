@@ -1,0 +1,30 @@
+server {
+    listen 80 default_server;
+    server_name ${DOMAIN} jarvis localhost _;
+
+    if (${DOLLAR}host = ${DOMAIN}) {
+        return 301 https://${DOLLAR}host${DOLLAR}request_uri;
+    }
+
+    root /usr/share/nginx/html/landing;
+    index index.html;
+
+    location / {
+        try_files ${DOLLAR}uri ${DOLLAR}uri/ =404;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name ${DOMAIN};
+
+    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+
+    root /usr/share/nginx/html/landing;
+    index index.html;
+
+    location / {
+        try_files ${DOLLAR}uri ${DOLLAR}uri/ =404;
+    }
+}

@@ -19,6 +19,7 @@ set of orchestration scripts.
 ```
 ├── build.sh                                 # Orchestrator to build and boot all services
 ├── cleanup.sh                               # Full environment wipe script
+├── index.html                               # (Optional) Custom landing page
 ├── init-db.sh                               # Automated DB/User provisioning
 ├── README.md                                # Documentation
 ├── scaffold.sh                              # Scaffolding and config generator
@@ -34,8 +35,11 @@ set of orchestration scripts.
     ├── db                                   # PostgreSQL configuration
     │   └── db.yaml.template                 # Docker Compose template for postgres
     ├── gitea                                # Gitea & DB definitions
-    │   ├── gitea.conf.template              # Nginx proxy conf for n8n
+    │   ├── gitea.conf.template              # Nginx proxy conf for gitea
     │   └── gitea.yaml.template              # Docker Compose template for gitea
+    ├── landing                              # Landing page
+    │   ├── default.index.html.template      # Default landing page template
+    │   └── landing.conf.template            # Nginx configuration for landing page
     ├── n8n                                  # n8n service definitions
     │   ├── n8n.conf.template                # Nginx proxy conf for n8n
     │   └── n8n.yaml.template                # Docker Compose template for n8n
@@ -98,6 +102,72 @@ data directories. **This will delete your databases.**
 ```
 ./cleanup.sh
 ```
+
+- - -
+
+# Customizing the Landing Page
+
+The homelab includes a default landing page accessible at `http://jarvis` (or `http://localhost` from the server itself). This page provides a central portal with links to all your services.
+
+## Using the Default Landing Page
+
+By default, `./scaffold.sh` generates a landing page from `templates/landing/default.index.html.template`. This template includes cards for all services with links to their respective URLs.
+
+## Creating a Custom Landing Page
+
+To customize the landing page:
+
+### 1. Edit the Landing Page
+
+Edit `index.html` in the project root to customize:
+- Colors and styling
+- Service descriptions
+- Icons
+- Layout
+- Additional links or information
+
+### 2. Use Environment Variables (Optional)
+
+Your custom `index.html` can use environment variables from `.env`:
+
+```html
+<a href="http://git.${DOMAIN}">Gitea</a>
+<p>Network: ${SHARED_NETWORK}</p>
+```
+
+These will be replaced when you run `./scaffold.sh`.
+
+### 3. Regenerate Configurations
+
+```bash
+./scaffold.sh
+```
+
+The custom `index.html` will be used instead of the default template.
+
+### 4. Reload Nginx
+
+```bash
+docker exec nginx nginx -s reload
+```
+
+Or restart the nginx container:
+
+```bash
+cd nginx
+docker-compose restart
+```
+
+## Reverting to Default
+
+To revert to the default landing page:
+
+```bash
+rm index.html
+./scaffold.sh
+```
+
+**Note:** The `index.html` file in the project root is gitignored, so your customizations won't be committed to version control.
 
 - - -
 

@@ -99,6 +99,15 @@ prepare_directories
 generate_from_template "templates/nginx/nginx.yaml.template" "nginx/docker-compose.yaml"
 generate_from_template "templates/nginx/nginx.main.conf.template" "nginx/nginx.conf"
 
+# LANDING PAGE
+generate_from_template "templates/landing/landing.conf.template" "nginx/conf.d/landing.conf"
+
+if [ -f "index.html" ]; then
+    generate_from_template "index.html" "landing/index.html"
+else
+    generate_from_template "templates/landing/default.index.html.template" "landing/index.html"
+fi
+
 # DATABASE
 generate_from_template "templates/db/db.yaml.template" "db/docker-compose.yaml"
 

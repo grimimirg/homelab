@@ -2,8 +2,8 @@ server {
     listen 80;
     server_name n8n.${DOMAIN} n8n.localhost n8n.jarvis;
 
-    if ($host = n8n.${DOMAIN}) {
-        return 301 https://$host$request_uri;
+    if (${DOLLAR}host = n8n.${DOMAIN}) {
+        return 301 https://${DOLLAR}host${DOLLAR}request_uri;
     }
 
     location / {
@@ -21,7 +21,6 @@ server {
         proxy_read_timeout 86400s;
         proxy_send_timeout 86400s;
     }
-
 }
 
 server {

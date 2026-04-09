@@ -38,12 +38,10 @@ authentication_backend:
         salt_length: 16
 
 access_control:
-  default_policy: deny
+  default_policy: one_factor
   rules:
     - domain: auth.${DOMAIN}
       policy: bypass
-    - domain: "*.${DOMAIN}"
-      policy: one_factor
 
 session:
   secret: ${AUTHELIA_SESSION_SECRET}

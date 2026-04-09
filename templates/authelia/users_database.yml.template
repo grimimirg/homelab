@@ -3,7 +3,7 @@ users:
   admin:
     disabled: false
     displayname: "Administrator"
-    password: "$$argon2id$$v=19$$m=65536,t=3,p=4$$YnJpbWlyaWdob21lbGFi$$VZzFqLFoE3K3xN5qH8vN5xGqJ8mP2wR4tY6uI9oP0qE"
+    password: "$argon2id$v=19$m=65536,t=3,p=4$YnJpbWlyaWdob21lbGFi$VZzFqLFoE3K3xN5qH8vN5xGqJ8mP2wR4tY6uI9oP0qE"
     email: ${EMAIL}
     groups:
       - admins

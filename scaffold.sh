@@ -17,6 +17,10 @@ generate_from_template() {
         sed -e "s/\${DOMAIN}/$DOMAIN/g" \
             -e "s/\${DOLLAR}/\$/g" \
             "$template_file" > "$output_file"
+    elif [[ "$template_file" == *users_database.yml.template ]]; then
+        # Use sed for users_database to preserve password hashes with $ characters
+        sed -e "s/\${EMAIL}/$EMAIL/g" \
+            "$template_file" > "$output_file"
     else
         envsubst < "$template_file" > "$output_file"
     fi

@@ -60,7 +60,7 @@ regulation:
 storage:
   encryption_key: ${AUTHELIA_STORAGE_ENCRYPTION_KEY}
   postgres:
-    host: db
+    host: shared_postgres
     port: 5432
     database: ${AUTHELIA_DB_NAME}
     schema: public

@@ -10,7 +10,8 @@ gitea/
 navidrome/
 ssl/
 paperless/
-
+landing/
+logs/
 *.log
 
 .idea/

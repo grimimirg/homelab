@@ -12,7 +12,7 @@ services:
     expose:
       - 9091
     depends_on:
-      - db
+      - shared_postgres
 
 networks:
   ${SHARED_NETWORK}:

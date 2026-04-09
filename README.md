@@ -4,6 +4,34 @@ This project provides a modular, containerized approach to managing your home se
 using Docker and Nginx as a reverse proxy. The infrastructure is defined as code (IaC), allowing for rapid setup,
 deployment, and cleanup.
 
+## Table of Contents
+
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [System Requirements](#system-requirements)
+- [Quick Start](#quick-start)
+  - [1. Configuration](#1-configuration)
+  - [2. SSL Setup](#2-ssl-setup)
+  - [3. Deployment](#3-deployment)
+  - [4. Start and Stop](#start-and-stop)
+- [Network Access](#network-access)
+  - [Local Network Access](#local-network-access)
+  - [External Access via No-IP](#external-access-via-no-ip)
+  - [Wildcard DNS Configuration](#wildcard-dns-configuration)
+- [Customization](#customization)
+  - [Customizing the Landing Page](#customizing-the-landing-page)
+- [Management](#management)
+  - [Service Management](#service-management)
+  - [Backup and Restore](#backup-and-restore)
+- [Security](#security)
+  - [Security Best Practices](#security-best-practices)
+  - [SSL Certificate Management](#ssl-certificate-management)
+- [Troubleshooting](#troubleshooting)
+- [Reference](#reference)
+  - [Port Mapping Reference](#port-mapping-reference)
+
+---
+
 ## Architecture
 
 The system is built on a modular design where each service has its own directory and lifecycle, coordinated by a central
@@ -57,11 +85,46 @@ set of orchestration scripts.
         └── synapse.yaml.template            # Docker Compose template for synapse
 ```
 
-## Deployment
+## System Requirements
+
+### Software Dependencies
+
+- **Docker**: Version 20.10 or higher
+- **Docker Compose**: Version 2.0 or higher
+- **Bash**: For running orchestration scripts
+- **Certbot**: For SSL certificate generation (installed automatically by setup-ssl.sh)
+
+#### Check Versions
+
+```bash
+docker --version
+docker compose --version
+bash --version
+```
+
+### Network Requirements
+
+- Static local IP address (recommended for homelab server)
+- Port forwarding configured on router (for external access):
+  - Port 80 → Server IP:80
+  - Port 443 → Server IP:443
+  - Port 8448 → Server IP:8448 (if using Matrix/Synapse)
+
+### Domain Requirements
+
+- Registered domain name (free options: No-IP, DuckDNS, FreeDNS)
+- DNS configuration:
+  - **Recommended**: Wildcard DNS record (`*.yourdomain.com`) pointing to your public IP
+  - **Alternative**: Individual A records for each subdomain
+- Dynamic DNS client if you don't have a static public IP (see [External Access via No-IP](#external-access-via-no-ip))
+
+---
+
+## Quick Start
 
 This workflow uses a clear separation between infrastructure generation and service execution.
 
-### 1\. Configuration
+### 1. Configuration
 
 Create a `.env` file in the project root with the following variables:
 
@@ -82,19 +145,59 @@ Create a `.env` file in the project root with the following variables:
 | SYNAPSE_REGISTRATION_SHARED_SECRET | A security key required to authorize user registrations on your server.                     |
 | NAVIDROME_MUSIC_FOLDER_PATH        | The absolute path on your host server where your music library is stored.                   |
 
-### 2\. Startup Workflow
+### 2. SSL Setup
 
-1. **Prepare:** Configure your `.env` file with all required variables (see above).
-2. **Secure:** Run `./setup-ssl.sh` to prepare your certificates.
-3. **Scaffold:** Run `./scaffold.sh` to generate configurations from `templates/`.
-4. **Provision:** Run `./build.sh`. This will spin up the database, wait for readiness, and execute `./init-db.sh` to
-   create dedicated DB users and schemas.
+Generate SSL certificates for your domain and all subdomains:
 
-## Start and Stop
+```bash
+./setup-ssl.sh
+```
 
-Use `startup.sh` to start all containers at once, and `shutdown.sh` to stop all containers at once.
+This script will:
+- Install certbot if not present
+- Request a multi-domain certificate covering:
+  - `yourdomain.com`
+  - `git.yourdomain.com`
+  - `n8n.yourdomain.com`
+  - `music.yourdomain.com`
+  - `docs.yourdomain.com`
+  - `synapse.yourdomain.com`
+- Copy certificates to the `ssl/` directory
 
-## Cleanup
+**Note**: If you add new services later, you'll need to update `setup-ssl.sh` and regenerate certificates.
+
+### 3. Deployment
+
+Generate configurations and start all services:
+
+```bash
+# Generate configurations from templates
+./scaffold.sh
+
+# Build and start all services
+./build.sh
+```
+
+The `build.sh` script will:
+1. Create the shared Docker network
+2. Start PostgreSQL database
+3. Wait for database readiness
+4. Provision database users and schemas
+5. Start all services (nginx, gitea, n8n, navidrome, paperless, synapse)
+
+### 4. Start and Stop
+
+After initial deployment, use these commands to manage services:
+
+```bash
+# Start all services
+./startup.sh
+
+# Stop all services
+./shutdown.sh
+```
+
+### Cleanup
 
 **Warning:** Running `cleanup.sh` will stop containers, remove the network, and delete the generated configurations and
 data directories. **This will delete your databases.**
@@ -103,11 +206,40 @@ data directories. **This will delete your databases.**
 ./cleanup.sh
 ```
 
-- - -
+---
 
-# Customizing the Landing Page
+## Network Access
 
-The homelab includes a default landing page accessible at `http://jarvis` (or `http://localhost` from the server itself). This page provides a central portal with links to all your services.
+### Wildcard DNS Configuration
+
+For external access to all services without creating individual DNS records, configure a **wildcard DNS** on your DNS provider (e.g., No-IP):
+
+1. Log into your DNS provider dashboard
+2. Enable wildcard DNS for your domain
+3. Create a wildcard record: `*.yourdomain.com` → Your public IP
+
+This single record will automatically route all subdomains (`git.yourdomain.com`, `n8n.yourdomain.com`, etc.) to your server.
+
+**Benefits:**
+- ✅ One DNS record covers all services
+- ✅ No need to add records when adding new services
+- ✅ Simplified DNS management
+
+**After enabling wildcard DNS:**
+- `yourdomain.com` → Landing page
+- `git.yourdomain.com` → Gitea
+- `n8n.yourdomain.com` → n8n
+- `music.yourdomain.com` → Navidrome
+- `docs.yourdomain.com` → Paperless
+- `synapse.yourdomain.com` → Matrix
+
+---
+
+## Customization
+
+### Customizing the Landing Page
+
+The homelab includes a default landing page accessible at `http://local.server.name` (or `http://localhost` from the server itself). This page provides a central portal with links to all your services.
 
 ## Using the Default Landing Page
 
@@ -169,20 +301,20 @@ rm index.html
 
 **Note:** The `index.html` file in the project root is gitignored, so your customizations won't be committed to version control.
 
-- - -
+---
 
-# Local Network Access
+### Local Network Access
 
-To access your homelab services from other devices on your local network (e.g., `git.server_name`, `n8n.server_name`), you need to configure DNS resolution on each client device.
+To access your homelab services from other devices on your local network (e.g., `git.local.server.name`, `n8n.local.server.name`), you need to configure DNS resolution on each client device.
 
-## Prerequisites
+#### Prerequisites
 
 - Know the **local IP address** of your homelab server (e.g., `192.168.1.100`)
-- Know the **hostname** of your server (e.g., `jarvis`)
+- Know the **hostname** of your server (e.g., `local.server.name`)
 
-## Configuration by Operating System
+#### Configuration by Operating System
 
-### Linux
+##### Linux
 
 Edit the `/etc/hosts` file with root privileges:
 
@@ -198,7 +330,7 @@ Add the following lines (replace `192.168.1.100` with your server's IP):
 
 Save and exit. Changes take effect immediately.
 
-### macOS
+##### macOS
 
 Edit the `/etc/hosts` file with root privileges:
 
@@ -219,7 +351,7 @@ sudo dscacheutil -flushcache
 sudo killall -HUP mDNSResponder
 ```
 
-### Windows
+##### Windows
 
 1. Open **Notepad** as Administrator (right-click → Run as administrator)
 2. Open the file: `C:\Windows\System32\drivers\etc\hosts`
@@ -236,7 +368,7 @@ sudo killall -HUP mDNSResponder
 ipconfig /flushdns
 ```
 
-## Testing
+#### Testing
 
 After configuration, test the connection from your client device:
 
@@ -245,23 +377,22 @@ ping git.server_name
 curl http://git.server_name
 ```
 
-## HTTPS Considerations
+#### HTTPS Considerations
 
-**Note:** When accessing services via local hostnames (e.g., `https://git.server_name`), your browser will show a certificate warning because the SSL certificate is issued for your public domain (e.g., `grimilab.ddns.net`), not for local hostnames.
+**Note:** When accessing services via local hostnames (e.g., `https://git.local.server.name`), your browser will show a certificate warning because the SSL certificate is issued for your public domain (e.g., `yourdomain.com`), not for local hostnames.
 
 **Options:**
 - Use **HTTP** instead: `http://git.server_name` (no certificate warning)
 - Accept the certificate warning in your browser (not recommended for production)
 - Generate self-signed certificates for local hostnames (advanced)
 
-- - -
+---
 
-# Expose the homelab via No-IP DUC
+### External Access via No-IP
 
-Here below 3 ways on how to run the **No-IP Dynamic Update Client (DUC) v3**
+To expose your homelab to the internet with a dynamic IP address, use the **No-IP Dynamic Update Client (DUC) v3**.
 
-
-## Method 1: On-Demand
+#### Method 1: On-Demand
 
 Use this method to run the process only once manually.
 
@@ -272,7 +403,7 @@ noip-duc --username [username] \\
    --once
 ```
 
-## Method 2: Direct Daemon
+#### Method 2: Direct Daemon
 
 Use this built-in method to fork the process into the background manually. This creates a PID file to track the process.
 
@@ -286,11 +417,11 @@ noip-duc --username [username] \\
    --daemon-pid-file /var/run/noip-duc.pid
 ```
 
-## Method 3: Systemd Service (Recommended)
+#### Method 3: Systemd Service (Recommended)
 
 Systemd ensures the client starts automatically after a reboot and restarts if the process crashes.
 
-### 1\. Create the Service File
+##### 1. Create the Service File
 
 Open a terminal and run:
 
@@ -298,7 +429,7 @@ Open a terminal and run:
 sudo nano /etc/systemd/system/noip-duc.service
 ```
 
-### 2\. Paste the following configuration
+##### 2. Paste the following configuration
 
 ```
 [Unit]
@@ -316,26 +447,26 @@ sudo nano /etc/systemd/system/noip-duc.service
    WantedBy=multi-user.target
 ```
 
-### 3\. Enable and Start
+##### 3. Enable and Start
 
-#### Reload systemd to recognize the new service
+###### Reload systemd to recognize the new service
 ```
 sudo systemctl daemon-reload
 ```
 
-#### Enable service to start on boot
+###### Enable service to start on boot
 
 ```
 sudo systemctl enable noip-duc
 ```
 
-#### Start the service immediately
+###### Start the service immediately
 
 ```
 sudo systemctl start noip-duc
 ```
 
-### 4\. Check Status
+##### 4. Check Status
 
 ```
 sudo systemctl status noip-duc
@@ -343,13 +474,15 @@ sudo systemctl status noip-duc
 
 **Security Tip:** To avoid leaving your password in a plain text file, consider using **Environment Variables** in a protected `.conf` file as mentioned in the No-IP advanced documentation.
 
-- - -
+---
 
-# Service Management
+## Management
 
-## Monitoring Services
+### Service Management
 
-### Check Running Containers
+#### Monitoring Services
+
+##### Check Running Containers
 
 View all running containers:
 
@@ -363,7 +496,7 @@ View all containers (including stopped):
 docker ps -a
 ```
 
-### View Service Logs
+##### View Service Logs
 
 View logs for a specific service:
 
@@ -385,7 +518,7 @@ View last 100 lines:
 docker logs --tail 100 <container_name>
 ```
 
-### Inspect Network
+##### Inspect Network
 
 Check the shared network configuration:
 
@@ -393,7 +526,7 @@ Check the shared network configuration:
 docker network inspect ${SHARED_NETWORK}
 ```
 
-### Reload Nginx Configuration
+##### Reload Nginx Configuration
 
 After modifying nginx configuration files:
 
@@ -402,9 +535,9 @@ docker exec nginx nginx -t          # Test configuration
 docker exec nginx nginx -s reload   # Reload if test passes
 ```
 
-## Updating Services
+#### Updating Services
 
-### Update All Services
+##### Update All Services
 
 Pull the latest images and restart containers:
 
@@ -414,7 +547,7 @@ docker compose pull
 docker compose up -d
 ```
 
-### Update Specific Service
+##### Update Specific Service
 
 ```bash
 cd gitea
@@ -422,7 +555,7 @@ docker compose pull
 docker compose up -d
 ```
 
-### Update All at Once
+##### Update All at Once
 
 ```bash
 ./shutdown.sh
@@ -436,19 +569,19 @@ docker compose -f synapse/docker compose.yaml pull
 ./startup.sh
 ```
 
-- - -
+---
 
-# Backup and Restore
+### Backup and Restore
 
-## What to Backup
+#### What to Backup
 
-### 1. Environment Configuration
+##### 1. Environment Configuration
 
 ```bash
 cp .env .env.backup
 ```
 
-### 2. Data Volumes
+##### 2. Data Volumes
 
 All service data is stored in the `data/` directory:
 
@@ -456,7 +589,7 @@ All service data is stored in the `data/` directory:
 tar -czf homelab-data-backup-$(date +%Y%m%d).tar.gz data/
 ```
 
-### 3. PostgreSQL Database
+##### 3. PostgreSQL Database
 
 Backup all databases:
 
@@ -470,39 +603,39 @@ Backup specific database:
 docker exec db pg_dump -U ${POSTGRES_USER} gitea > gitea-backup-$(date +%Y%m%d).sql
 ```
 
-### 4. SSL Certificates
+##### 4. SSL Certificates
 
 ```bash
 tar -czf ssl-backup-$(date +%Y%m%d).tar.gz ssl/
 ```
 
-## Restore from Backup
+#### Restore from Backup
 
-### Restore Data Volumes
+##### Restore Data Volumes
 
 ```bash
 tar -xzf homelab-data-backup-YYYYMMDD.tar.gz
 ```
 
-### Restore PostgreSQL Database
+##### Restore PostgreSQL Database
 
 ```bash
 cat backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER}
 ```
 
-### Restore Specific Database
+##### Restore Specific Database
 
 ```bash
 cat gitea-backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER} -d gitea
 ```
 
-- - -
+---
 
-# Troubleshooting
+## Troubleshooting
 
-## Common Issues
+### Common Issues
 
-### Nginx Fails to Start
+#### Nginx Fails to Start
 
 **Symptom:** Nginx container exits immediately
 
@@ -530,7 +663,7 @@ cat gitea-backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER} -d gi
    sudo netstat -tulpn | grep -E ':(80|443|8448)'
    ```
 
-### Database Connection Failed
+#### Database Connection Failed
 
 **Symptom:** Services can't connect to PostgreSQL
 
@@ -553,7 +686,7 @@ cat gitea-backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER} -d gi
    docker exec -it db psql -U ${POSTGRES_USER} -d gitea
    ```
 
-### 502 Bad Gateway
+#### 502 Bad Gateway
 
 **Symptom:** Nginx returns 502 error
 
@@ -579,7 +712,7 @@ cat gitea-backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER} -d gi
    docker network inspect ${SHARED_NETWORK}
    ```
 
-### Container Exits Immediately
+#### Container Exits Immediately
 
 **Symptom:** Container starts then stops
 
@@ -600,7 +733,7 @@ cat gitea-backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER} -d gi
    sudo chown -R ${HOST_UID}:${HOST_GID} data/<service_name>/
    ```
 
-### Services Can't Communicate
+#### Services Can't Communicate
 
 **Symptom:** Services can't reach each other
 
@@ -621,9 +754,9 @@ cat gitea-backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER} -d gi
    docker network create ${SHARED_NETWORK}
    ```
 
-### Local Hostname Not Resolving
+#### Local Hostname Not Resolving
 
-**Symptom:** `git.jarvis` doesn't work from client device
+**Symptom:** `git.local.server.name` doesn't work from client device
 
 **Solutions:**
 
@@ -641,11 +774,13 @@ cat gitea-backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER} -d gi
    docker exec nginx netstat -tulpn | grep :80
    ```
 
-- - -
+---
 
-# Security Best Practices
+## Security
 
-## Change Default Passwords
+### Security Best Practices
+
+#### Change Default Passwords
 
 After initial setup, change all default passwords:
 
@@ -653,7 +788,7 @@ After initial setup, change all default passwords:
 2. **Service-specific passwords** - Update in each service's web interface
 3. **Synapse registration secret** - Update in `.env` and regenerate config
 
-## Firewall Configuration
+#### Firewall Configuration
 
 Configure your firewall to only allow necessary ports:
 
@@ -669,7 +804,9 @@ sudo ufw allow 8448/tcp
 sudo ufw enable
 ```
 
-## SSL Certificate Cleanup
+### SSL Certificate Management
+
+#### SSL Certificate Cleanup
 
 If you need to remove existing certificates before regenerating them:
 
@@ -690,7 +827,7 @@ After cleanup, regenerate certificates with:
 ./setup-ssl.sh
 ```
 
-## SSL Certificate Renewal
+#### SSL Certificate Renewal
 
 Let's Encrypt certificates expire every 90 days. Set up automatic renewal:
 
@@ -708,7 +845,7 @@ Add this line to renew certificates monthly:
 0 0 1 * * certbot renew --quiet && docker exec nginx nginx -s reload
 ```
 
-## Secure the .env File
+#### Secure the .env File
 
 Protect your environment file:
 
@@ -718,7 +855,7 @@ chmod 600 .env
 
 Never commit `.env` to version control.
 
-## Regular Updates
+#### Regular Updates
 
 Keep your services updated to patch security vulnerabilities:
 
@@ -729,11 +866,13 @@ docker compose -f */docker compose.yaml pull
 ./startup.sh
 ```
 
-- - -
+---
 
-# Port Mapping Reference
+## Reference
 
-## External Ports (Exposed to Host)
+### Port Mapping Reference
+
+#### External Ports (Exposed to Host)
 
 | Service    | Port | Protocol | Purpose                    |
 |------------|------|----------|----------------------------|
@@ -741,7 +880,7 @@ docker compose -f */docker compose.yaml pull
 | Nginx      | 443  | HTTPS    | Secure web traffic         |
 | Nginx      | 8448 | HTTPS    | Matrix federation          |
 
-## Internal Ports (Container Network Only)
+#### Internal Ports (Container Network Only)
 
 | Service    | Port | Access Via                          |
 |------------|------|-------------------------------------|
@@ -754,37 +893,3 @@ docker compose -f */docker compose.yaml pull
 | Redis      | 6379 | Paperless only                      |
 
 **Note:** Only nginx exposes ports to the host. All other services are accessed through nginx reverse proxy.
-
-- - -
-
-# System Requirements
-
-## Software Dependencies
-
-- **Docker**: Version 20.10 or higher
-- **Docker Compose**: Version 2.0 or higher
-- **Bash**: For running orchestration scripts
-- **OpenSSL**: For SSL certificate generation
-
-### Check Versions
-
-```bash
-docker --version
-docker compose --version
-bash --version
-openssl version
-```
-
-## Network Requirements
-
-- Static local IP address (recommended for homelab server)
-- Port forwarding configured on router (for external access):
-  - Port 80 → Server IP:80
-  - Port 443 → Server IP:443
-  - Port 8448 → Server IP:8448 (if using Matrix/Synapse)
-
-## Domain Requirements
-
-- Registered domain name (free options: No-IP, DuckDNS, FreeDNS)
-- DNS A record pointing to your public IP
-- Dynamic DNS client if you don't have a static public IP (see No-IP DUC section)

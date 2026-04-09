@@ -3,9 +3,7 @@ theme: dark
 default_2fa_method: ""
 
 server:
-  host: 0.0.0.0
-  port: 9091
-  path: ""
+  address: tcp://0.0.0.0:9091/
   asset_path: /config/assets/
 
 log:
@@ -18,6 +16,10 @@ totp:
 
 webauthn:
   disable: true
+
+identity_validation:
+  reset_password:
+    jwt_secret: ${AUTHELIA_JWT_SECRET}
 
 authentication_backend:
   password_reset:
@@ -44,13 +46,14 @@ access_control:
       policy: one_factor
 
 session:
-  name: authelia_session
-  domain: ${DOMAIN}
-  same_site: lax
   secret: ${AUTHELIA_SESSION_SECRET}
-  expiration: 1h
-  inactivity: 1h
-  remember_me_duration: 1M
+  cookies:
+    - name: authelia_session
+      domain: ${DOMAIN}
+      same_site: lax
+      expiration: 1h
+      inactivity: 1h
+  remember_me: 1M
 
 regulation:
   max_retries: 5
@@ -60,8 +63,7 @@ regulation:
 storage:
   encryption_key: ${AUTHELIA_STORAGE_ENCRYPTION_KEY}
   postgres:
-    host: shared_postgres
-    port: 5432
+    address: tcp://shared_postgres:5432
     database: ${AUTHELIA_DB_NAME}
     schema: public
     username: ${AUTHELIA_DB_USER}

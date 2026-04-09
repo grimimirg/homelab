@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homelab Services</title>
+    <title>Homelab</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
 
@@ -220,6 +220,7 @@
 <div class="container">
     <header>
         <h1>Homelab Services</h1>
+        <p>${DOMAIN}</p>
     </header>
 
     <div class="services-grid">

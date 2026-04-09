@@ -196,6 +196,38 @@
             color: #8ab5b8;
         }
 
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(168, 218, 220, 0.1);
+            border: 2px solid #a8dadc;
+            color: #a8dadc;
+            padding: 10px 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px rgba(168, 218, 220, 0.5);
+            box-shadow: 0 0 10px rgba(168, 218, 220, 0.2);
+        }
+
+        .logout-btn::before {
+            content: '[ ';
+        }
+
+        .logout-btn::after {
+            content: ' ]';
+        }
+
+        .logout-btn:hover {
+            background: rgba(168, 218, 220, 0.2);
+            box-shadow: 0 0 20px rgba(168, 218, 220, 0.4);
+            transform: scale(1.05);
+        }
+
         footer {
             text-align: center;
             color: #a8dadc;
@@ -213,12 +245,24 @@
             .services-grid {
                 grid-template-columns: 1fr;
             }
+
+            .logout-btn {
+                position: static;
+                display: block;
+                margin: 0 auto 20px;
+                width: fit-content;
+            }
+
+            header {
+                padding-top: 20px;
+            }
         }
     </style>
 </head>
 <body>
 <div class="container">
     <header>
+        <a href="https://auth.${DOMAIN}/api/logout" class="logout-btn">LOGOUT</a>
         <h1>Homelab Services</h1>
         <p>${DOMAIN}</p>
     </header>

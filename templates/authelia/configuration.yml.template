@@ -50,6 +50,7 @@ session:
   cookies:
     - name: authelia_session
       domain: ${DOMAIN}
+      authelia_url: https://auth.${DOMAIN}
       same_site: lax
       expiration: 1h
       inactivity: 1h

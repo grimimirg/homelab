@@ -51,6 +51,7 @@ set of orchestration scripts.
 
 ```
 ├── build.sh                                 # Orchestrator to build and boot all services
+├── change-authelia-password.sh              # Helper script to change Authelia user passwords
 ├── cleanup.sh                               # Full environment wipe script
 ├── index.html                               # (Optional) Custom landing page
 ├── init-db.sh                               # Automated DB/User provisioning
@@ -270,6 +271,11 @@ https://auth.${DOMAIN}
 
 **⚠️ Important:** Change the default password immediately after first login!
 
+To change the password, run:
+```bash
+./change-authelia-password.sh
+```
+
 ### Managing Users
 
 #### View Current Users
@@ -323,9 +329,34 @@ docker compose -f authelia/docker-compose.yaml restart
 
 #### Change Password
 
-1. Generate new password hash (see above)
+**Easy Method (Recommended):**
+
+Use the provided script:
+
+```bash
+./change-authelia-password.sh
+```
+
+The script will:
+1. Ask for the username (default: admin)
+2. Prompt for new password (with confirmation)
+3. Generate the password hash automatically
+4. Update the users database
+5. Restart Authelia
+
+**Manual Method:**
+
+1. Generate new password hash:
+   ```bash
+   docker run --rm authelia/authelia:latest authelia crypto hash generate argon2 --password 'YourNewPassword'
+   ```
+
 2. Update the hash in `data/authelia/users_database.yml`
-3. Restart Authelia
+
+3. Restart Authelia:
+   ```bash
+   docker compose -f authelia/docker-compose.yaml restart
+   ```
 
 #### Disable a User
 

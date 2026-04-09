@@ -30,13 +30,18 @@ fi
 sudo systemctl stop nginx 2>/dev/null || true
 
 # Get SSL certificates
-echo "Getting SSL certificates..."
+echo "Getting SSL certificates for all subdomains..."
 sudo certbot certonly \
     --standalone \
     --non-interactive \
     --agree-tos \
     --email "$EMAIL" \
-    -d "$DOMAIN"
+    -d "$DOMAIN" \
+    -d "git.$DOMAIN" \
+    -d "n8n.$DOMAIN" \
+    -d "music.$DOMAIN" \
+    -d "docs.$DOMAIN" \
+    -d "synapse.$DOMAIN"
 
 # Create ssl directory
 mkdir -p ssl/

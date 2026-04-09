@@ -11,8 +11,6 @@ services:
       - TZ=${TZ}
     expose:
       - 9091
-    depends_on:
-      - shared_postgres
 
 networks:
   ${SHARED_NETWORK}:

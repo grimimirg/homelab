@@ -15,7 +15,8 @@ services:
       - "traefik.http.routers.docker-stats.entrypoints=https"
       - "traefik.http.routers.docker-stats.tls=true"
       - "traefik.http.routers.docker-stats.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.docker-stats.middlewares=authelia@docker"
+      - "traefik.http.middlewares.docker-stats-stripprefix.stripprefix.prefixes=/api/docker"
+      - "traefik.http.routers.docker-stats.middlewares=authelia@docker,docker-stats-stripprefix"
       - "traefik.http.services.docker-stats.loadbalancer.server.port=5000"
 
 networks:

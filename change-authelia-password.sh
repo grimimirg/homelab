@@ -1,8 +1,9 @@
 #!/bin/bash
 
-echo "========================================="
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "  Authelia Password Change"
-echo "========================================="
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo ""
 
 if [ ! -f "data/authelia/users_database.yml" ]; then
@@ -103,10 +104,10 @@ echo "Restarting Authelia container..."
 docker compose -f authelia/docker-compose.yaml restart
 
 echo ""
-echo "========================================="
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "  Password Changed Successfully!"
-echo "========================================="
 echo ""
 echo "User: $username"
 echo "You can now login with the new password."
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo ""

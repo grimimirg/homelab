@@ -1,8 +1,9 @@
 #!/bin/bash
 
-echo "========================================="
-echo "  Authelia SSO Setup"
-echo "========================================="
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo "Authelia SSO Setup"
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo ""
 
 if [ ! -f ".env" ]; then
@@ -41,12 +42,13 @@ echo "  1. Access https://auth.${DOMAIN}"
 echo "  2. Login with admin:admin"
 echo "  3. Change password in settings"
 echo ""
-echo "========================================="
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "  Setup Complete!"
-echo "========================================="
 echo ""
 echo "Next steps:"
 echo "  1. Run: ./scaffold.sh"
 echo "  2. Run: ./build.sh"
 echo "  3. Access: https://auth.${DOMAIN}"
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo ""

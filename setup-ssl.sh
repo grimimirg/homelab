@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Matrix Server SSL Setup Script
-echo "Matrix Server SSL Setup"
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo "Certificates generation"
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo ""
 
 # Load configuration
 if [ ! -f ".env" ]; then
@@ -71,5 +74,9 @@ sudo crontab -l 2>/dev/null | grep -q "certbot renew" || {
     (sudo crontab -l 2>/dev/null; echo "0 12 * * * certbot renew --quiet --deploy-hook 'cp /etc/letsencrypt/live/$DOMAIN/*.pem /home/$USER/synapse-server/ssl/ && chown $USER:$USER /home/$USER/synapse-server/ssl/*'") | sudo crontab -
 }
 
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "SSL setup completed successfully!"
 echo "Certificates are in: $(pwd)/ssl/"
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo ""

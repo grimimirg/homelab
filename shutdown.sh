@@ -1,9 +1,12 @@
 #!/bin/bash
 
-# List of service directories containing docker-compose.yaml
 SERVICES=("db" "authelia" "stats-api" "nginx" "n8n" "synapse" "gitea" "navidrome" "paperless")
 
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "Stopping all homelab services..."
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo ""
 
 for dir in "${SERVICES[@]}"; do
     if [ -f "$dir/docker-compose.yaml" ]; then
@@ -14,4 +17,8 @@ for dir in "${SERVICES[@]}"; do
     fi
 done
 
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "All services have been stopped."
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo ""

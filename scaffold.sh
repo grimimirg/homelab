@@ -69,7 +69,11 @@ set_permissions() {
   chmod +x "${scripts[@]}"
 }
 
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "Starting Homelab creation..."
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo ""
 
 if [ -f ".env" ]; then
     source .env
@@ -104,31 +108,47 @@ for var in "${REQUIRED_VARS[@]}"; do
     fi
 done
 
-echo "======================="
+echo ""
+echo "==============================="
 echo "DEBUG: Values"
-echo "======================="
+echo "==============================="
+echo ""
+echo ""
 
 for var in "${REQUIRED_VARS[@]}"; do
     echo "${!var}"
 done
 
-echo "======================="
-
+echo ""
+echo ""
+echo "==============================="
 echo "Variables validation passed. Exporting..."
 export "${REQUIRED_VARS[@]}"
 
+echo ""
+echo "==============================="
+echo "Prepare directories..."
 prepare_directories
+
+echo ""
+echo "==============================="
+echo "Set permissions to scripts..."
 set_permissions
 
-######################################################################
-# TEMPLATE GENERATION
-######################################################################
+echo ""
+echo "==============================="
+echo "Template generation..."
+echo ""
+echo ""
 
-# NGINX
+echo "==============================="
+echo "NGINX"
 generate_from_template "templates/nginx/nginx.yaml.template" "nginx/docker-compose.yaml"
 generate_from_template "templates/nginx/nginx.main.conf.template" "nginx/nginx.conf"
 
-# LANDING PAGE
+echo ""
+echo "==============================="
+echo "LANDING PAGE"
 generate_from_template "templates/landing/landing.conf.template" "nginx/conf.d/landing.conf"
 
 if [ -f "index.html" ]; then
@@ -137,38 +157,54 @@ else
     generate_from_template "templates/landing/default.index.html.template" "landing/index.html"
 fi
 
-# DATABASE
+echo ""
+echo "==============================="
+echo "DATABASE"
 generate_from_template "templates/db/db.yaml.template" "db/docker-compose.yaml"
 
-# N8N
+echo ""
+echo "==============================="
+echo "N8N"
 generate_from_template "templates/n8n/n8n.yaml.template" "n8n/docker-compose.yaml"
 generate_from_template "templates/n8n/n8n.conf.template" "nginx/conf.d/n8n.conf"
 
-# SYNAPSE
+echo ""
+echo "==============================="
+echo "SYNAPSE"
 generate_from_template "templates/synapse/synapse.yaml.template" "synapse/docker-compose.yaml"
 generate_from_template "templates/synapse/synapse.conf.template" "nginx/conf.d/synapse.conf"
 generate_from_template "templates/homeserver.yaml.template" "data/synapse/homeserver.yaml"
 cp templates/log.config.template data/synapse/log.config
 
-# GITEA
+echo ""
+echo "==============================="
+echo "GITEA"
 generate_from_template "templates/gitea/gitea.yaml.template" "gitea/docker-compose.yaml"
 generate_from_template "templates/gitea/gitea.conf.template" "nginx/conf.d/gitea.conf"
 
-# NAVIDROME
+echo ""
+echo "==============================="
+echo "NAVIDROME"
 generate_from_template "templates/navidrome/navidrome.yaml.template" "navidrome/docker-compose.yaml"
 generate_from_template "templates/navidrome/navidrome.conf.template" "nginx/conf.d/navidrome.conf"
 
-# PAPERLESS
+echo ""
+echo "==============================="
+echo "PAPERLESS"
 generate_from_template "templates/paperless/paperless.yaml.template" "paperless/docker-compose.yaml"
 generate_from_template "templates/paperless/paperless.conf.template" "nginx/conf.d/paperless.conf"
 
-# AUTHELIA
+echo ""
+echo "==============================="
+echo "AUTHELIA"
 generate_from_template "templates/authelia/authelia.yaml.template" "authelia/docker-compose.yaml"
 generate_from_template "templates/authelia/authelia.conf.template" "nginx/conf.d/authelia.conf"
 generate_from_template "templates/authelia/configuration.yml.template" "data/authelia/configuration.yml"
 generate_from_template "templates/authelia/users_database.yml.template" "data/authelia/users_database.yml"
 
-# DOCKER STATS API
+echo ""
+echo "==============================="
+echo "STATISTICS DASHBOARD"
 generate_from_template "templates/statistics-app/docker-compose.yaml.template" "stats-api/docker-compose.yaml"
 
 # Copy shared theme CSS for both landing page and Authelia
@@ -176,4 +212,8 @@ mkdir -p landing
 cp templates/landing/homelab-theme.css landing/homelab-theme.css
 cp templates/landing/homelab-theme.css landing/authelia-theme.css
 
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "Setup completed successfully!"
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo ""

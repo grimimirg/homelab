@@ -2,12 +2,19 @@
 
 source .env
 
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo "Provisioning databases for ${DOMAIN}..."
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo ""
+
 DB_CONTAINER="shared_postgres"
 
 provision_db() {
     local db_name=$1
     local db_user=$2
     local db_pass=$3
+
     # Optional parameter: defaults to empty string (system default collation)
     local collation=${4:-""}
 
@@ -15,15 +22,18 @@ provision_db() {
 
     # 1. Check/Create User
     # Verify if user exists, otherwise create it
+    echo "==============================="
     if ! docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -tAc "SELECT 1 FROM pg_roles WHERE rolname='$db_user'" | grep -q 1; then
         echo "Creating user $db_user..."
         docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -c "CREATE USER $db_user WITH PASSWORD '$db_pass';"
     else
         echo "User $db_user already exists."
     fi
+    echo ""
 
     # 2. Check/Create Database
     # Verify if database exists
+    echo "==============================="
     if ! docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -lqt | cut -d \| -f 1 | grep -qw "$db_name"; then
         echo "Creating database $db_name..."
 
@@ -41,13 +51,17 @@ provision_db() {
     else
         echo "Database $db_name already exists."
     fi
-    
+    echo ""
+
     # Grant all privileges on the database and public schema
+    echo "==============================="
     echo "Granting privileges to $db_user on $db_name..."
     docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -d "$db_name" -c "GRANT ALL PRIVILEGES ON DATABASE $db_name TO $db_user;"
     docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -d "$db_name" -c "GRANT ALL ON SCHEMA public TO $db_user;"
     docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -d "$db_name" -c "GRANT CREATE ON SCHEMA public TO $db_user;"
     docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -d "$db_name" -c "ALTER SCHEMA public OWNER TO $db_user;"
+    echo ""
+    echo ""
 }
 
 # Execution for services
@@ -59,4 +73,8 @@ provision_db "$AUTHELIA_DB_NAME" "$AUTHELIA_DB_USER" "$AUTHELIA_DB_PASS"
 # Synapse specifically requires 'C' collation
 provision_db "$SYNAPSE_DB_NAME" "$SYNAPSE_DB_USER" "$SYNAPSE_DB_PASS" "C"
 
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "Database creation completed successfully."
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo ""

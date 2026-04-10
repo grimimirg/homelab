@@ -8,9 +8,10 @@ BACKUP_NAME="homelab_backup_${TIMESTAMP}.zip"
 BACKUP_PATH="${BACKUP_DIR}/${BACKUP_NAME}"
 TEMP_DIR=$(mktemp -d)
 
-echo "=========================================="
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "Homelab Backup Script"
-echo "=========================================="
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "Backup will be saved to: ${BACKUP_PATH}"
 echo ""
 
@@ -86,12 +87,12 @@ zip -r -q "$BACKUP_PATH" "homelab_backup"
 BACKUP_SIZE=$(du -h "$BACKUP_PATH" | cut -f1)
 
 echo ""
-echo "=========================================="
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "Backup completed successfully!"
-echo "=========================================="
 echo "Backup file: ${BACKUP_NAME}"
 echo "Location: ${BACKUP_PATH}"
 echo "Size: ${BACKUP_SIZE}"
 echo ""
 echo "To restore this backup, run: ./restore.sh"
-echo "=========================================="
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo ""

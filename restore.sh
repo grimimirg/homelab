@@ -5,9 +5,10 @@ set -e
 BACKUP_DIR="$HOME/bkp"
 TEMP_DIR=$(mktemp -d)
 
-echo "=========================================="
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "Homelab Restore Script"
-echo "=========================================="
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo ""
 
 if [ ! -d "$BACKUP_DIR" ]; then
@@ -41,9 +42,9 @@ if [ ${#BACKUPS[@]} -lt $DISPLAY_COUNT ]; then
     DISPLAY_COUNT=${#BACKUPS[@]}
 fi
 
+echo "==============================="
 echo "Found ${#BACKUPS[@]} backup(s). Showing the most recent $DISPLAY_COUNT:"
 echo ""
-echo "=========================================="
 
 for i in $(seq 0 $((DISPLAY_COUNT - 1))); do
     BACKUP_FILE="${BACKUPS[$i]}"
@@ -60,7 +61,7 @@ for i in $(seq 0 $((DISPLAY_COUNT - 1))); do
     echo ""
 done
 
-echo "=========================================="
+echo "==============================="
 echo ""
 echo "Select backup to restore:"
 echo "  - Press ENTER to restore the latest backup (default)"
@@ -82,9 +83,9 @@ SELECTED_BACKUP="${BACKUPS[$CHOICE]}"
 SELECTED_NAME=$(basename "$SELECTED_BACKUP")
 
 echo ""
-echo "=========================================="
+echo "==============================="
 echo "Selected backup: $SELECTED_NAME"
-echo "=========================================="
+echo "==============================="
 echo ""
 
 RUNNING_CONTAINERS=$(docker ps -q)
@@ -114,6 +115,7 @@ if [ -n "$RUNNING_CONTAINERS" ]; then
 fi
 
 echo ""
+echo "==============================="
 echo "WARNING: This will OVERWRITE all current data!"
 echo "Current data directories will be backed up to: ${BACKUP_DIR}/pre_restore_backup_$(date +%Y%m%d_%H%M%S).zip"
 echo ""
@@ -125,6 +127,7 @@ if [ "$CONFIRM" != "yes" ]; then
 fi
 
 echo ""
+echo "==============================="
 echo "Step 1/5: Creating safety backup of current data..."
 PRE_RESTORE_BACKUP="${BACKUP_DIR}/pre_restore_backup_$(date +%Y%m%d_%H%M%S).zip"
 SAFETY_TEMP=$(mktemp -d)
@@ -146,10 +149,12 @@ cd "$SAFETY_TEMP"
 zip -r -q "$PRE_RESTORE_BACKUP" "current_data" 2>/dev/null || true
 cd - > /dev/null
 rm -rf "$SAFETY_TEMP"
-
+echo ""
+echo "==============================="
 echo "Safety backup created: $(basename $PRE_RESTORE_BACKUP)"
 
 echo ""
+echo "==============================="
 echo "Step 2/5: Extracting backup archive..."
 unzip -q "$SELECTED_BACKUP" -d "$TEMP_DIR"
 
@@ -160,6 +165,7 @@ if [ ! -d "$EXTRACT_DIR" ]; then
 fi
 
 echo ""
+echo "==============================="
 echo "Step 3/5: Removing current data directories..."
 for dir in data db nginx landing logs; do
     if [ -d "$dir" ]; then
@@ -169,6 +175,7 @@ for dir in data db nginx landing logs; do
 done
 
 echo ""
+echo "==============================="
 echo "Step 4/5: Restoring data from backup..."
 cd "$EXTRACT_DIR"
 
@@ -189,6 +196,7 @@ done
 cd "$OLDPWD"
 
 echo ""
+echo "==============================="
 echo "Step 5/5: Setting correct permissions..."
 if [ -f ".env" ]; then
     source .env
@@ -207,13 +215,14 @@ else
 fi
 
 echo ""
-echo "=========================================="
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo "Restore completed successfully!"
-echo "=========================================="
+echo ""
 echo "Restored from: $SELECTED_NAME"
 echo "Safety backup: $(basename $PRE_RESTORE_BACKUP)"
 echo ""
 echo "Next steps:"
 echo "  1. Review the restored configuration"
 echo "  2. Start your containers with: ./startup.sh"
-echo "=========================================="
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo ""

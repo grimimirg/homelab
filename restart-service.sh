@@ -3,9 +3,10 @@
 # List of available services
 SERVICES=("db" "authelia" "stats-api" "nginx" "n8n" "synapse" "gitea" "navidrome" "paperless")
 
-echo "=========================================="
-echo "   Homelab Service Restart Manager"
-echo "=========================================="
+echo ""
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+echo "Homelab Service Restart Manager"
+echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo ""
 echo "Available services:"
 echo ""
@@ -54,14 +55,17 @@ if [ ! -f "$selected_service/docker-compose.yaml" ]; then
 fi
 
 echo ""
+echo "==============================="
 echo "Restarting service: $selected_service"
-echo "=========================================="
+echo ""
+echo ""
 
 # Restart the service
 docker compose -f "$selected_service/docker-compose.yaml" restart
 
 if [ $? -eq 0 ]; then
     echo ""
+    echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
     echo "✓ Service '$selected_service' restarted successfully!"
     echo ""
     echo "To check the status, run:"
@@ -69,8 +73,13 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "To view logs, run:"
     echo "  docker compose -f $selected_service/docker-compose.yaml logs -f"
+    echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+    echo ""
 else
     echo ""
+    echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
     echo "✗ ERROR: Failed to restart service '$selected_service'."
+    echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
+    echo ""
     exit 1
 fi

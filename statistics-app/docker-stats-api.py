@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 def get_docker_client():
     try:
-        # from_env() will use DOCKER_HOST env var or default to unix socket
-        client = docker.from_env()
+        # Use explicit unix socket path with three slashes as per documentation
+        client = docker.DockerClient(base_url='unix:///var/run/docker.sock')
         # Test the connection
         client.ping()
         logger.info("Successfully connected to Docker daemon")

@@ -19,6 +19,7 @@ services:
       PAPERLESS_DBUSER: ${PAPERLESS_DB_USER}
       PAPERLESS_DBPASS: ${PAPERLESS_DB_PASS}
       PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+      PAPERLESS_URL: https://docs.${DOMAIN}
       PAPERLESS_TRUSTED_PROXIES: 172.16.0.0/12,192.168.0.0/16,10.0.0.0/8
     volumes:
       - ../data/paperless/data:/usr/src/paperless/data

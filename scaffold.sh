@@ -49,6 +49,22 @@ prepare_directories() {
     echo "Directories are ready with correct ownership and secure permissions."
 }
 
+set_permissions() {
+  local scripts=(
+    "cleanup.sh"
+    "change-authelia-password.sh"
+    "scaffold.sh"
+    "build.sh"
+    "startup.sh"
+    "shutdown.sh"
+    "setup-ssl.sh"
+    "init-db.sh"
+  )
+  
+  echo "Setting executable permissions for shell scripts..."
+  chmod +x "${scripts[@]}"
+}
+
 echo "Starting Homelab creation..."
 
 if [ -f ".env" ]; then
@@ -96,6 +112,7 @@ echo "Variables validation passed. Exporting..."
 export "${REQUIRED_VARS[@]}"
 
 prepare_directories
+set_permissions
 
 ######################################################################
 # TEMPLATE GENERATION

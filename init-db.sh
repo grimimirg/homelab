@@ -47,6 +47,7 @@ provision_db() {
     docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -d "$db_name" -c "GRANT ALL PRIVILEGES ON DATABASE $db_name TO $db_user;"
     docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -d "$db_name" -c "GRANT ALL ON SCHEMA public TO $db_user;"
     docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -d "$db_name" -c "GRANT CREATE ON SCHEMA public TO $db_user;"
+    docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -d "$db_name" -c "ALTER SCHEMA public OWNER TO $db_user;"
 }
 
 # Execution for services

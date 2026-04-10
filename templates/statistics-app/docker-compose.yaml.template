@@ -5,8 +5,9 @@ services:
       dockerfile: Dockerfile
     container_name: docker-stats-api
     restart: unless-stopped
+    user: root
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:rw
     networks:
       - ${SHARED_NETWORK}
     labels:

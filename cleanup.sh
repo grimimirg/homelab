@@ -13,6 +13,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     docker compose -f db/docker-compose.yaml down 2>/dev/null
     docker compose -f nginx/docker-compose.yaml down 2>/dev/null
     docker compose -f authelia/docker-compose.yaml down 2>/dev/null
+    docker compose -f stats-api/docker-compose.yaml down 2>/dev/null
     docker compose -f n8n/docker-compose.yaml down 2>/dev/null
     docker compose -f synapse/docker-compose.yaml down 2>/dev/null
     docker compose -f gitea/docker-compose.yaml down 2>/dev/null
@@ -23,7 +24,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     docker network rm "$SHARED_NETWORK" 2>/dev/null
 
     echo "Removing generated directories..."
-    rm -rf nginx db db/postgres n8n synapse data gitea navidrome paperless logs landing authelia
+    rm -rf nginx db db/postgres n8n synapse data gitea navidrome paperless logs landing authelia stats-api
 
     echo "Cleanup complete!"
 else

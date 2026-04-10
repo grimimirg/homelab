@@ -14,7 +14,7 @@ services:
       - broker
     environment:
       PAPERLESS_REDIS: redis://broker:6379
-      PAPERLESS_DBHOST: db
+      PAPERLESS_DBHOST: shared_postgres
       PAPERLESS_DBNAME: paperless
       PAPERLESS_DBUSER: ${PAPERLESS_DB_USER}
       PAPERLESS_DBPASS: ${PAPERLESS_DB_PASS}

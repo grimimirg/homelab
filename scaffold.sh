@@ -30,6 +30,7 @@ prepare_directories() {
     echo "Scaffolding directories and setting permissions..."
 
     local base_dirs=("nginx/conf.d" "db/postgres" "data/n8n" "data/paperless"
+    "data/paperless/data" "data/paperless/media" "data/paperless/consumption"
     "data/gitea" "data/navidrome" "data/synapse" "data/authelia" "data/authelia/assets" "logs")
 
     for d in "${base_dirs[@]}"; do

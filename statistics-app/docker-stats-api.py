@@ -5,6 +5,10 @@ import docker
 from datetime import datetime
 import logging
 import traceback
+import requests_unixsocket
+
+# Register the unix socket adapter
+requests_unixsocket.monkeypatch()
 
 app = Flask(__name__)
 CORS(app)

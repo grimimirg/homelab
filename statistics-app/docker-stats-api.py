@@ -14,9 +14,14 @@ logger = logging.getLogger(__name__)
 
 def get_docker_client():
     try:
-        return docker.from_env()
+        client = docker.from_env()
+        # Test the connection
+        client.ping()
+        logger.info("Successfully connected to Docker daemon")
+        return client
     except Exception as e:
-        print(f"Error connecting to Docker: {e}")
+        logger.error(f"Error connecting to Docker: {e}")
+        logger.error(traceback.format_exc())
         return None
 
 def format_uptime(created_at):

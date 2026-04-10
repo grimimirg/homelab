@@ -77,10 +77,12 @@ fi
 
 export HOST_UID=$(id -u)
 export HOST_GID=$(id -g)
+export DOCKER_GID=$(getent group docker | cut -d: -f3)
 export DOLLAR='$'
 
 echo "Current HOST_UID: $HOST_UID"
 echo "Current HOST_GID: $HOST_GID"
+echo "Current DOCKER_GID: $DOCKER_GID"
 
 REQUIRED_VARS=(
     "DOMAIN" "EMAIL" "SHARED_NETWORK" "POSTGRES_USER" "POSTGRES_PASSWORD"

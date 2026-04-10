@@ -3,9 +3,14 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import docker
 from datetime import datetime
+import logging
+import traceback
 
 app = Flask(__name__)
 CORS(app)
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 def get_docker_client():
     try:
@@ -35,9 +40,11 @@ def format_uptime(created_at):
 
 @app.route('/api/docker/stats', methods=['GET'])
 def get_stats():
+    logger.info("Received request for /api/docker/stats")
     client = get_docker_client()
     
     if not client:
+        logger.error("Cannot connect to Docker daemon")
         return jsonify({
             'error': 'Cannot connect to Docker daemon',
             'running': 0,
@@ -48,9 +55,17 @@ def get_stats():
         }), 500
     
     try:
+        logger.info("Fetching containers...")
         containers = client.containers.list(all=True)
+        logger.info(f"Found {len(containers)} containers")
+        
+        logger.info("Fetching images...")
         images = client.images.list()
+        logger.info(f"Found {len(images)} images")
+        
+        logger.info("Fetching networks...")
         networks = client.networks.list()
+        logger.info(f"Found {len(networks)} networks")
         
         running_count = sum(1 for c in containers if c.status == 'running')
         stopped_count = len(containers) - running_count
@@ -58,6 +73,7 @@ def get_stats():
         container_list = []
         for container in containers:
             if container.status == 'running':
+                logger.info(f"Processing container: {container.name}")
                 container_list.append({
                     'name': container.name,
                     'image': container.image.tags[0] if container.image.tags else container.image.short_id,
@@ -65,15 +81,19 @@ def get_stats():
                     'uptime': format_uptime(container.attrs['Created'])
                 })
         
-        return jsonify({
+        response = {
             'running': running_count,
             'stopped': stopped_count,
             'images': len(images),
             'networks': len(networks),
             'containers': container_list
-        })
+        }
+        logger.info(f"Returning response: {response}")
+        return jsonify(response)
     
     except Exception as e:
+        logger.error(f"Error in get_stats: {str(e)}")
+        logger.error(traceback.format_exc())
         return jsonify({
             'error': str(e),
             'running': 0,

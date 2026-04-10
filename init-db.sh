@@ -41,9 +41,13 @@ provision_db() {
     else
         echo "Database $db_name already exists."
     fi
+    
+    # Grant all privileges on the database and public schema
+    echo "Granting privileges to $db_user on $db_name..."
+    docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -d "$db_name" -c "GRANT ALL PRIVILEGES ON DATABASE $db_name TO $db_user;"
+    docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -d "$db_name" -c "GRANT ALL ON SCHEMA public TO $db_user;"
+    docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$DB_CONTAINER" psql -U "$POSTGRES_USER" -d "$db_name" -c "GRANT CREATE ON SCHEMA public TO $db_user;"
 }
-
-
 
 # Execution for services
 # Gitea and Paperless use the default system collation

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   docker-stats-api:
     build:
@@ -13,7 +11,7 @@ services:
       - ${SHARED_NETWORK}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.docker-stats.rule=Host(\`${DOMAIN}\`) && PathPrefix(\`/api/docker\`)"
+      - 'traefik.http.routers.docker-stats.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/docker`)'
       - "traefik.http.routers.docker-stats.entrypoints=https"
       - "traefik.http.routers.docker-stats.tls=true"
       - "traefik.http.routers.docker-stats.tls.certresolver=letsencrypt"

@@ -10,7 +10,6 @@
 
 </div>
 
-> [!WARNING]
 > **🚧 WORK IN PROGRESS 🚧**
 > 
 > This project is currently under active development. You may experience malfunctions, bugs, or significant changes to the structure and functionality.

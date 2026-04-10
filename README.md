@@ -10,6 +10,13 @@
 
 </div>
 
+> [!WARNING]
+> **🚧 WORK IN PROGRESS 🚧**
+> 
+> This project is currently under active development. You may experience malfunctions, bugs, or significant changes to the structure and functionality.
+> 
+> **For any issues or assistance, please open an [issue](../../issues).**
+
 This project provides a modular, containerized approach to managing your home services
 using Docker and Nginx as a reverse proxy. The infrastructure is defined as code (IaC), allowing for rapid setup,
 deployment, and cleanup.

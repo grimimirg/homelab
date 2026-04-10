@@ -3,7 +3,7 @@ version: '3.8'
 services:
   docker-stats-api:
     build:
-      context: ../../statistics-app
+      context: ../statistics-app
       dockerfile: Dockerfile
     container_name: docker-stats-api
     restart: unless-stopped

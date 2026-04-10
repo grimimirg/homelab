@@ -43,6 +43,9 @@ docker compose -f paperless/docker-compose.yaml up -d
 echo "Starting Authelia..."
 docker compose -f authelia/docker-compose.yaml up -d
 
+echo "Starting Docker Stats API..."
+docker compose -f stats-api/docker-compose.yaml up -d
+
 sleep 2
 
 echo "Starting Nginx..."

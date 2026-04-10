@@ -97,6 +97,29 @@ function logout() {
     });
 }
 
+function controlContainer(containerId, action) {
+    fetch(`/api/docker/container/${containerId}/${action}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log(data.message);
+            fetchDockerStats();
+        } else {
+            console.error('Error:', data.error);
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error controlling container:', error);
+        alert('Error controlling container: ' + error);
+    });
+}
+
 function fetchDockerStats() {
     fetch('/api/docker/stats')
         .then(response => response.json())
@@ -117,6 +140,11 @@ function fetchDockerStats() {
                                 <span class="container-image">${container.image}</span>
                                 <span class="container-uptime">${container.uptime || 'N/A'}</span>
                             </div>
+                        </div>
+                        <div class="container-actions">
+                            <button onclick="controlContainer('${container.id}', 'start')" class="action-btn start-btn" title="Start">▶</button>
+                            <button onclick="controlContainer('${container.id}', 'stop')" class="action-btn stop-btn" title="Stop">■</button>
+                            <button onclick="controlContainer('${container.id}', 'restart')" class="action-btn restart-btn" title="Restart">↻</button>
                         </div>
                     </div>
                 `).join('');

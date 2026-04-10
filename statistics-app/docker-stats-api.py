@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import docker
 from datetime import datetime
@@ -78,14 +78,14 @@ def get_stats():
         
         container_list = []
         for container in containers:
-            if container.status == 'running':
-                logger.info(f"Processing container: {container.name}")
-                container_list.append({
-                    'name': container.name,
-                    'image': container.image.tags[0] if container.image.tags else container.image.short_id,
-                    'state': container.status,
-                    'uptime': format_uptime(container.attrs['Created'])
-                })
+            logger.info(f"Processing container: {container.name}")
+            container_list.append({
+                'id': container.id,
+                'name': container.name,
+                'image': container.image.tags[0] if container.image.tags else container.image.short_id,
+                'state': container.status,
+                'uptime': format_uptime(container.attrs['Created']) if container.status == 'running' else 'Stopped'
+            })
         
         response = {
             'running': running_count,
@@ -108,6 +108,69 @@ def get_stats():
             'networks': 0,
             'containers': []
         }), 500
+
+@app.route('/api/docker/container/<container_id>/start', methods=['POST'])
+def start_container(container_id):
+    logger.info(f"Received request to start container: {container_id}")
+    client = get_docker_client()
+    
+    if not client:
+        return jsonify({'error': 'Cannot connect to Docker daemon'}), 500
+    
+    try:
+        container = client.containers.get(container_id)
+        container.start()
+        logger.info(f"Container {container_id} started successfully")
+        return jsonify({'success': True, 'message': f'Container {container.name} started'}), 200
+    except docker.errors.NotFound:
+        logger.error(f"Container {container_id} not found")
+        return jsonify({'error': 'Container not found'}), 404
+    except Exception as e:
+        logger.error(f"Error starting container: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/docker/container/<container_id>/stop', methods=['POST'])
+def stop_container(container_id):
+    logger.info(f"Received request to stop container: {container_id}")
+    client = get_docker_client()
+    
+    if not client:
+        return jsonify({'error': 'Cannot connect to Docker daemon'}), 500
+    
+    try:
+        container = client.containers.get(container_id)
+        container.stop()
+        logger.info(f"Container {container_id} stopped successfully")
+        return jsonify({'success': True, 'message': f'Container {container.name} stopped'}), 200
+    except docker.errors.NotFound:
+        logger.error(f"Container {container_id} not found")
+        return jsonify({'error': 'Container not found'}), 404
+    except Exception as e:
+        logger.error(f"Error stopping container: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/docker/container/<container_id>/restart', methods=['POST'])
+def restart_container(container_id):
+    logger.info(f"Received request to restart container: {container_id}")
+    client = get_docker_client()
+    
+    if not client:
+        return jsonify({'error': 'Cannot connect to Docker daemon'}), 500
+    
+    try:
+        container = client.containers.get(container_id)
+        container.restart()
+        logger.info(f"Container {container_id} restarted successfully")
+        return jsonify({'success': True, 'message': f'Container {container.name} restarted'}), 200
+    except docker.errors.NotFound:
+        logger.error(f"Container {container_id} not found")
+        return jsonify({'error': 'Container not found'}), 404
+    except Exception as e:
+        logger.error(f"Error restarting container: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/health', methods=['GET'])
 def health():

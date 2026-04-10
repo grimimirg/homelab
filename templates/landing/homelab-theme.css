@@ -205,6 +205,7 @@ header p {
     border: 1px solid #a8dadc;
     padding: 15px;
     transition: all 0.3s ease;
+    gap: 15px;
 }
 
 .container-item:hover {
@@ -276,6 +277,49 @@ header p {
 .container-uptime::before {
     content: 'uptime: ';
     opacity: 0.6;
+}
+
+.container-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.action-btn {
+    background: rgba(168, 218, 220, 0.1);
+    border: 1px solid #a8dadc;
+    color: #a8dadc;
+    padding: 8px 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 5px rgba(168, 218, 220, 0.2);
+    min-width: 40px;
+}
+
+.action-btn:hover {
+    background: rgba(168, 218, 220, 0.2);
+    box-shadow: 0 0 15px rgba(168, 218, 220, 0.4);
+    transform: scale(1.1);
+}
+
+.start-btn:hover {
+    border-color: #4ade80;
+    color: #4ade80;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+}
+
+.stop-btn:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+.restart-btn:hover {
+    border-color: #fbbf24;
+    color: #fbbf24;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
 }
 
 .loading,
@@ -449,6 +493,21 @@ footer {
     .container-meta {
         flex-direction: column;
         gap: 5px;
+    }
+
+    .container-item {
+        flex-wrap: wrap;
+    }
+
+    .container-actions {
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .action-btn {
+        flex: 1;
+        max-width: 80px;
     }
 
     .logout-btn {

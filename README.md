@@ -13,7 +13,8 @@ deployment, and cleanup.
   - [1. Configuration](#1-configuration)
   - [2. SSL Setup](#2-ssl-setup)
   - [3. Deployment](#3-deployment)
-  - [4. Start and Stop](#start-and-stop)
+  - [4. Verify Deployment](#4-verify-deployment)
+  - [5. Start and Stop](#5-start-and-stop)
 - [Authentication](#authentication)
   - [Authelia SSO](#authelia-sso)
   - [First Login](#first-login)
@@ -24,6 +25,14 @@ deployment, and cleanup.
   - [Wildcard DNS Configuration](#wildcard-dns-configuration)
 - [Customization](#customization)
   - [Customizing the Landing Page](#customizing-the-landing-page)
+- [Docker Statistics Dashboard](#docker-statistics-dashboard)
+  - [Features](#features)
+  - [Architecture](#architecture-1)
+  - [API Endpoints](#api-endpoints)
+  - [Deployment](#deployment)
+  - [Testing](#testing)
+  - [Customization](#customization-1)
+  - [Troubleshooting](#troubleshooting-1)
 - [Management](#management)
   - [Service Management](#service-management)
   - [Backup and Restore](#backup-and-restore)
@@ -60,6 +69,12 @@ set of orchestration scripts.
 ├── setup-ssl.sh                             # SSL certificate helper
 ├── shutdown.sh                              # Orchestrator to manually stop all services
 ├── startup.sh                               # Orchestrator to manually start all services
+├── statistics-app                           # Docker stats API application
+│    ├── docker-stats-api.py                 # Flask API for Docker statistics
+│    ├── Dockerfile                          # Container definition
+│    ├── requirements.txt                    # Python dependencies
+│    ├── README.md                           # Application documentation
+│    └── test-docker-stats.sh                # Testing script
 ├── synapse-scripts                          # Administration scripts for Synapse
 │    ├── create-user-batch.sh                # Utility script for batch user creation
 │    └── create-user.sh                      # Utility script for user creation
@@ -92,6 +107,8 @@ set of orchestration scripts.
     ├── paperless                            # Document management + Redis
     │   ├── paperless.conf.template          # Nginx proxy conf for paperless
     │   └── paperless.yaml.template          # Docker Compose template for paperless
+    ├── statistics-app                       # Docker statistics API
+    │   └── docker-compose.yaml.template     # Docker Compose template for stats API
     └── synapse                              # Synapse server definitions
         ├── synapse.conf.template            # Nginx proxy conf for synapse
         └── synapse.yaml.template            # Docker Compose template for synapse
@@ -138,7 +155,14 @@ This workflow uses a clear separation between infrastructure generation and serv
 
 ### 1. Configuration
 
-Create a `.env` file in the project root with the following variables:
+Create a `.env` file in the project root. You can start from the provided template:
+
+```bash
+cp .env.template .env
+nano .env  # or use your preferred editor
+```
+
+Configure the following variables:
 
 | Variable                           | Description                                                                                 |
 |------------------------------------|--------------------------------------------------------------------------------------------|
@@ -203,10 +227,54 @@ The `build.sh` script will:
 2. Start PostgreSQL database
 3. Wait for database readiness
 4. Provision database users and schemas (including Authelia)
-5. Start all services (authelia, nginx, gitea, n8n, navidrome, paperless, synapse)
+5. Start all services (authelia, stats-api, nginx, gitea, n8n, navidrome, paperless, synapse)
 6. Display Authelia login credentials
 
-### 4. Start and Stop
+### 4. Verify Deployment
+
+After deployment, verify all services are running correctly:
+
+```bash
+# Check all containers are running
+docker ps
+
+# You should see these containers:
+# - db (PostgreSQL)
+# - authelia (SSO)
+# - docker-stats-api (Statistics API)
+# - nginx (Reverse Proxy)
+# - gitea
+# - n8n
+# - navidrome
+# - paperless-webserver
+# - paperless-redis
+# - synapse
+```
+
+**Access the landing page:**
+
+1. Open your browser and navigate to `https://yourdomain.com`
+2. Login with Authelia default credentials:
+   - Username: `admin`
+   - Password: `admin`
+   - **⚠️ Change this password immediately after first login!**
+3. You should see:
+   - Landing page with service cards
+   - **System Status** section showing real-time Docker statistics
+   - **Active Containers** list with running containers
+
+**Test the statistics API** (optional):
+
+```bash
+# From the statistics-app directory
+cd statistics-app
+./test-docker-stats.sh
+
+# Or manually test the endpoint (requires authentication)
+curl https://yourdomain.com/api/docker/stats
+```
+
+### 5. Start and Stop
 
 After initial deployment, use these commands to manage services:
 
@@ -485,6 +553,210 @@ rm index.html
 ```
 
 **Note:** The `index.html` file in the project root is gitignored, so your customizations won't be committed to version control.
+
+---
+
+## Docker Statistics Dashboard
+
+The homelab includes a real-time Docker statistics dashboard integrated into the landing page. This feature provides live monitoring of your container infrastructure.
+
+### Features
+
+The statistics dashboard displays:
+
+- **General Statistics**
+  - Running containers count
+  - Stopped containers count
+  - Total Docker images
+  - Total Docker networks
+
+- **Active Containers List**
+  - Container name
+  - Image name and version
+  - Current state (with color-coded status indicator)
+  - Uptime information
+
+- **Auto-refresh**: Statistics update automatically every 10 seconds
+
+### Architecture
+
+The dashboard is powered by a dedicated Flask API service that queries the Docker daemon:
+
+```
+Browser → Nginx/Traefik → Statistics API (Python) → Docker Socket → Container Info
+```
+
+**Components:**
+
+1. **statistics-app/** - Python Flask application
+   - `docker-stats-api.py` - REST API that queries Docker
+   - `Dockerfile` - Container definition
+   - `requirements.txt` - Python dependencies (flask, flask-cors, docker)
+
+2. **Frontend Integration** - Landing page dashboard
+   - JavaScript fetches `/api/docker/stats` every 10 seconds
+   - Retro-terminal themed UI matching the landing page style
+   - Responsive design for mobile devices
+
+3. **Security**
+   - Protected by Authelia SSO (same as other services)
+   - Docker socket mounted as read-only
+   - HTTPS-only access with Let's Encrypt certificates
+
+### API Endpoints
+
+The statistics API exposes:
+
+- `GET /api/docker/stats` - Returns Docker statistics in JSON format
+- `GET /health` - Health check endpoint
+
+**Response Format:**
+
+```json
+{
+  "running": 5,
+  "stopped": 2,
+  "images": 12,
+  "networks": 3,
+  "containers": [
+    {
+      "name": "gitea",
+      "image": "gitea/gitea:latest",
+      "state": "running",
+      "uptime": "2d 5h"
+    },
+    {
+      "name": "synapse",
+      "image": "matrixdotorg/synapse:latest",
+      "state": "running",
+      "uptime": "1d 3h"
+    }
+  ]
+}
+```
+
+### Deployment
+
+The statistics service is automatically deployed with the homelab:
+
+```bash
+# Generate configurations (includes statistics API)
+./scaffold.sh
+
+# Start all services (includes statistics API)
+./startup.sh
+```
+
+The service will be available at:
+- API: `https://yourdomain.com/api/docker/stats` (requires authentication)
+- Dashboard: Integrated into landing page at `https://yourdomain.com`
+
+### Testing
+
+Test the statistics API:
+
+```bash
+cd statistics-app
+./test-docker-stats.sh
+```
+
+Or manually test the endpoints:
+
+```bash
+# Health check (may be accessible without auth depending on config)
+curl https://yourdomain.com/health
+
+# Statistics endpoint (requires Authelia authentication)
+# Access via browser after logging in
+```
+
+### Customization
+
+#### Adjust Refresh Interval
+
+Edit `templates/landing/default.index.html.template`:
+
+```javascript
+// Change from 10000 (10 seconds) to desired interval
+setInterval(fetchDockerStats, 10000);
+```
+
+Then regenerate:
+
+```bash
+./scaffold.sh
+docker exec nginx nginx -s reload
+```
+
+#### Modify Dashboard Styling
+
+The dashboard uses the same retro-terminal theme as the landing page. To customize:
+
+1. Edit `templates/landing/homelab-theme.css`
+2. Modify the `.stats-section`, `.stat-card`, or `.container-item` classes
+3. Regenerate and reload:
+
+```bash
+./scaffold.sh
+docker exec nginx nginx -s reload
+```
+
+### Troubleshooting
+
+#### Dashboard Shows "ERROR LOADING DATA"
+
+**Possible Causes:**
+- Statistics API container not running
+- Docker socket not accessible
+- Network connectivity issues
+
+**Solutions:**
+
+1. Check if the container is running:
+   ```bash
+   docker ps | grep docker-stats-api
+   ```
+
+2. Check container logs:
+   ```bash
+   docker logs docker-stats-api
+   ```
+
+3. Verify Docker socket is mounted:
+   ```bash
+   docker inspect docker-stats-api | grep docker.sock
+   ```
+
+4. Restart the statistics service:
+   ```bash
+   docker compose -f stats-api/docker-compose.yaml restart
+   ```
+
+#### Statistics Not Updating
+
+**Solutions:**
+
+1. Check browser console for JavaScript errors (F12)
+2. Verify API endpoint is accessible:
+   ```bash
+   curl https://yourdomain.com/api/docker/stats
+   ```
+3. Clear browser cache and reload the page
+
+#### Permission Denied Errors
+
+**Cause:** The API cannot access the Docker socket
+
+**Solution:**
+
+Ensure the Docker socket is mounted with correct permissions in `templates/statistics-app/docker-compose.yaml.template`:
+
+```yaml
+volumes:
+  - /var/run/docker.sock:/var/run/docker.sock:ro
+```
+
+The `:ro` flag ensures read-only access for security.
 
 ---
 

@@ -42,14 +42,39 @@
             <div class="service-description">Document management</div>
             <div class="service-url">docs.${DOMAIN}</div>
         </a>
-
-        <a href="http://synapse.${DOMAIN}" target="_blank" class="service-card">
-            <div class="service-icon">💬</div>
-            <div class="service-name">Synapse</div>
-            <div class="service-description">Matrix server</div>
-            <div class="service-url">synapse.${DOMAIN}</div>
-        </a>
     </div>
+
+        <div class="stats-section">
+            <h2 class="section-title">System Status</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-value" id="containers-running">--</div>
+                    <div class="stat-label">Running</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏸️</div>
+                    <div class="stat-value" id="containers-stopped">--</div>
+                    <div class="stat-label">Stopped</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💾</div>
+                    <div class="stat-value" id="total-images">--</div>
+                    <div class="stat-label">Images</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌐</div>
+                    <div class="stat-value" id="total-networks">--</div>
+                    <div class="stat-label">Networks</div>
+                </div>
+            </div>
+            <div class="container-list">
+                <h3 class="subsection-title">Active Containers</h3>
+                <div id="container-details" class="container-details">
+                    <div class="loading">[ LOADING... ]</div>
+                </div>
+            </div>
+        </div>
 
     <p style="margin-top: 15px; opacity: 0.5;">Template created by Claudione</p>
 </div>
@@ -71,6 +96,43 @@ function logout() {
         window.location.href = 'https://auth.${DOMAIN}';
     });
 }
+
+function fetchDockerStats() {
+    fetch('/api/docker/stats')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('containers-running').textContent = data.running || 0;
+            document.getElementById('containers-stopped').textContent = data.stopped || 0;
+            document.getElementById('total-images').textContent = data.images || 0;
+            document.getElementById('total-networks').textContent = data.networks || 0;
+            
+            const containerDetails = document.getElementById('container-details');
+            if (data.containers && data.containers.length > 0) {
+                containerDetails.innerHTML = data.containers.map(container => `
+                    <div class="container-item">
+                        <div class="container-status ${container.state.toLowerCase()}"></div>
+                        <div class="container-info">
+                            <div class="container-name">${container.name}</div>
+                            <div class="container-meta">
+                                <span class="container-image">${container.image}</span>
+                                <span class="container-uptime">${container.uptime || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                containerDetails.innerHTML = '<div class="no-data">[ NO CONTAINERS FOUND ]</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching Docker stats:', error);
+            document.getElementById('container-details').innerHTML = '<div class="error">[ ERROR LOADING DATA ]</div>';
+        });
+}
+
+// Fetch stats on load and refresh every 10 seconds
+fetchDockerStats();
+setInterval(fetchDockerStats, 10000);
 </script>
 </body>
 </html>

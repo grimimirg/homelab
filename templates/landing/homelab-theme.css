@@ -95,6 +95,205 @@ header p {
     letter-spacing: 2px;
 }
 
+/* Stats Section */
+.stats-section {
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-family: 'VT323', monospace;
+    font-size: 2rem;
+    color: #a8dadc;
+    text-align: center;
+    margin-bottom: 25px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(168, 218, 220, 0.5);
+}
+
+.section-title::before {
+    content: '[ ';
+}
+
+.section-title::after {
+    content: ' ]';
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: rgba(168, 218, 220, 0.08);
+    border: 2px solid #a8dadc;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(168, 218, 220, 0.2);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    background: rgba(168, 218, 220, 0.12);
+    box-shadow: 0 0 25px rgba(168, 218, 220, 0.4);
+    transform: translateY(-3px);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    filter: grayscale(100%) brightness(0) invert(1);
+    opacity: 0.9;
+}
+
+.stat-value {
+    font-family: 'VT323', monospace;
+    font-size: 3rem;
+    color: #b4d4e1;
+    text-shadow: 0 0 10px rgba(168, 218, 220, 0.5);
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    color: #9dc5c3;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.stat-label::before {
+    content: '// ';
+    opacity: 0.6;
+}
+
+/* Container List */
+.container-list {
+    background: rgba(168, 218, 220, 0.05);
+    border: 2px solid #a8dadc;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(168, 218, 220, 0.2);
+}
+
+.subsection-title {
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    color: #a8dadc;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(168, 218, 220, 0.5);
+}
+
+.subsection-title::before {
+    content: '> ';
+    color: #8ab5b8;
+}
+
+.container-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.container-item {
+    display: flex;
+    align-items: center;
+    background: rgba(26, 31, 46, 0.6);
+    border: 1px solid #a8dadc;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.container-item:hover {
+    background: rgba(168, 218, 220, 0.1);
+    box-shadow: 0 0 15px rgba(168, 218, 220, 0.3);
+    transform: translateX(5px);
+}
+
+.container-status {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 15px;
+    box-shadow: 0 0 10px currentColor;
+    animation: pulse 2s infinite;
+}
+
+.container-status.running {
+    background: #4ade80;
+    box-shadow: 0 0 10px #4ade80;
+}
+
+.container-status.exited,
+.container-status.stopped {
+    background: #ef4444;
+    box-shadow: 0 0 10px #ef4444;
+}
+
+.container-status.paused {
+    background: #fbbf24;
+    box-shadow: 0 0 10px #fbbf24;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.container-info {
+    flex: 1;
+}
+
+.container-name {
+    font-family: 'VT323', monospace;
+    font-size: 1.3rem;
+    color: #b4d4e1;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.container-name::before {
+    content: '$ ';
+    color: #8ab5b8;
+}
+
+.container-meta {
+    display: flex;
+    gap: 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    color: #9dc5c3;
+}
+
+.container-image::before {
+    content: 'image: ';
+    opacity: 0.6;
+}
+
+.container-uptime::before {
+    content: 'uptime: ';
+    opacity: 0.6;
+}
+
+.loading,
+.no-data,
+.error {
+    text-align: center;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    color: #a8dadc;
+    padding: 20px;
+    letter-spacing: 2px;
+}
+
+.error {
+    color: #ef4444;
+    text-shadow: 0 0 10px #ef4444;
+}
+
 .services-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -237,6 +436,19 @@ footer {
 
     .services-grid {
         grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+    }
+
+    .container-meta {
+        flex-direction: column;
+        gap: 5px;
     }
 
     .logout-btn {

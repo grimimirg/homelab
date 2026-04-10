@@ -163,6 +163,9 @@ generate_from_template "templates/authelia/authelia.conf.template" "nginx/conf.d
 generate_from_template "templates/authelia/configuration.yml.template" "data/authelia/configuration.yml"
 generate_from_template "templates/authelia/users_database.yml.template" "data/authelia/users_database.yml"
 
+# DOCKER STATS API
+generate_from_template "templates/statistics-app/docker-compose.yaml.template" "stats-api/docker-compose.yaml"
+
 # Copy shared theme CSS for both landing page and Authelia
 mkdir -p landing
 cp templates/landing/homelab-theme.css landing/homelab-theme.css

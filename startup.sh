@@ -7,7 +7,7 @@
 # NOTE: DB needs always to start before the others! #
 #####################################################
 #
-SERVICES=("db" "authelia" "nginx" "n8n" "synapse" "gitea" "navidrome" "paperless")
+SERVICES=("db" "authelia" "stats-api" "nginx" "n8n" "synapse" "gitea" "navidrome" "paperless")
 
 echo "Starting all homelab services..."
 

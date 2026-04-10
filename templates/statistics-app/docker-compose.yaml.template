@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  docker-stats-api:
+    build:
+      context: ../../statistics-app
+      dockerfile: Dockerfile
+    container_name: docker-stats-api
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - ${SHARED_NETWORK}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.docker-stats.rule=Host(\`${DOMAIN}\`) && PathPrefix(\`/api/docker\`)"
+      - "traefik.http.routers.docker-stats.entrypoints=https"
+      - "traefik.http.routers.docker-stats.tls=true"
+      - "traefik.http.routers.docker-stats.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.docker-stats.middlewares=authelia@docker"
+      - "traefik.http.services.docker-stats.loadbalancer.server.port=5000"
+
+networks:
+  ${SHARED_NETWORK}:
+    external: true

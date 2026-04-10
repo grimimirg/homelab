@@ -1,10 +1,20 @@
-# Modular Homelab Infrastructure
+# 🏠 Modular Homelab Infrastructure
+
+<div align="center">
+
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+
+</div>
 
 This project provides a modular, containerized approach to managing your home services
 using Docker and Nginx as a reverse proxy. The infrastructure is defined as code (IaC), allowing for rapid setup,
 deployment, and cleanup.
 
-## Table of Contents
+## 📑 Table of Contents
 
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
@@ -27,12 +37,12 @@ deployment, and cleanup.
   - [Customizing the Landing Page](#customizing-the-landing-page)
 - [Docker Statistics Dashboard](#docker-statistics-dashboard)
   - [Features](#features)
-  - [Architecture](#architecture-1)
-  - [API Endpoints](#api-endpoints)
-  - [Deployment](#deployment)
-  - [Testing](#testing)
-  - [Customization](#customization-1)
-  - [Troubleshooting](#troubleshooting-1)
+  - [Architecture](#-architecture-1)
+  - [API Endpoints](#-api-endpoints)
+  - [Deployment](#-deployment)
+  - [Testing](#-testing)
+  - [Customization](#-customization-1)
+  - [Troubleshooting](#-troubleshooting-1)
 - [Management](#management)
   - [Service Management](#service-management)
   - [Backup and Restore](#backup-and-restore)
@@ -45,18 +55,18 @@ deployment, and cleanup.
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 The system is built on a modular design where each service has its own directory and lifecycle, coordinated by a central
 set of orchestration scripts.
 
-* **Reverse Proxy:** Nginx (Containerized).
-* **Authentication:** Authelia SSO (Single Sign-On).
-* **Database:** PostgreSQL (Centralized).
-* **Services:** Synapse, n8n, gitea, paperless, navidrome.
+* **Reverse Proxy:** <span style="color: #009639;">**Nginx**</span> (Containerized).
+* **Authentication:** <span style="color: #DC382D;">**Authelia SSO**</span> (Single Sign-On).
+* **Database:** <span style="color: #316192;">**PostgreSQL**</span> (Centralized).
+* **Services:** <span style="color: #609926;">**Synapse**</span>, <span style="color: #EA4B71;">**n8n**</span>, <span style="color: #609926;">**gitea**</span>, <span style="color: #46A046;">**paperless**</span>, <span style="color: #4B8BBE;">**navidrome**</span>.
 * **Network:** Shared bridge network.
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 ├── backup.sh                                # Automated backup script for all container data
@@ -116,9 +126,9 @@ set of orchestration scripts.
         └── synapse.yaml.template            # Docker Compose template for synapse
 ```
 
-## System Requirements
+## ⚙️ System Requirements
 
-### Software Dependencies
+### 💿 Software Dependencies
 
 - **Docker**: Version 20.10 or higher
 - **Docker Compose**: Version 2.0 or higher
@@ -133,7 +143,7 @@ docker compose --version
 bash --version
 ```
 
-### Network Requirements
+### 🌐 Network Requirements
 
 - Static local IP address (recommended for homelab server)
 - Port forwarding configured on router (for external access):
@@ -141,7 +151,7 @@ bash --version
   - Port 443 → Server IP:443
   - Port 8448 → Server IP:8448 (if using Matrix/Synapse)
 
-### Domain Requirements
+### 🌍 Domain Requirements
 
 - Registered domain name (free options: No-IP, DuckDNS, FreeDNS)
 - DNS configuration:
@@ -151,11 +161,11 @@ bash --version
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
 This workflow uses a clear separation between infrastructure generation and service execution.
 
-### 1. Configuration
+### 1️⃣ Configuration
 
 Create a `.env` file in the project root. You can start from the provided template:
 
@@ -190,7 +200,7 @@ Configure the following variables:
 | AUTHELIA_SESSION_SECRET            | Secret key for session encryption (auto-generated in .env).                                 |
 | AUTHELIA_STORAGE_ENCRYPTION_KEY    | Encryption key for sensitive data storage (auto-generated in .env).                         |
 
-### 2. SSL Setup
+### 2️⃣ SSL Setup
 
 Generate SSL certificates for your domain and all subdomains:
 
@@ -212,7 +222,7 @@ This script will:
 
 **Note**: If you add new services later, you'll need to update `setup-ssl.sh` and regenerate certificates.
 
-### 3. Deployment
+### 3️⃣ Deployment
 
 Generate configurations and start all services:
 
@@ -232,7 +242,7 @@ The `build.sh` script will:
 5. Start all services (authelia, stats-api, nginx, gitea, n8n, navidrome, paperless, synapse)
 6. Display Authelia login credentials
 
-### 4. Verify Deployment
+### 4️⃣ Verify Deployment
 
 After deployment, verify all services are running correctly:
 
@@ -276,7 +286,7 @@ cd statistics-app
 curl https://yourdomain.com/api/docker/stats
 ```
 
-### 5. Start and Stop
+### 5️⃣ Start and Stop
 
 After initial deployment, use these commands to manage services:
 
@@ -288,10 +298,9 @@ After initial deployment, use these commands to manage services:
 ./shutdown.sh
 ```
 
-### Cleanup
+### 🧹 Cleanup
 
-**Warning:** Running `cleanup.sh` will stop containers, remove the network, and delete the generated configurations and
-data directories. **This will delete your databases.**
+> **⚠️ WARNING:** <span style="color: #DC382D;">**Running `cleanup.sh` will stop containers, remove the network, and delete the generated configurations and data directories. This will DELETE YOUR DATABASES.**</span>
 
 ```
 ./cleanup.sh
@@ -299,9 +308,9 @@ data directories. **This will delete your databases.**
 
 ---
 
-## Authentication
+## 🔐 Authentication
 
-### Authelia SSO
+### 🔑 Authelia SSO
 
 This homelab uses **Authelia** as a Single Sign-On (SSO) solution to protect all services with centralized authentication.
 
@@ -326,7 +335,7 @@ Authenticated? → Show landing page with service links
 Click on service (e.g., Gitea) → Access granted automatically
 ```
 
-### First Login
+### 👤 First Login
 
 After deployment, access the authentication portal:
 
@@ -339,16 +348,16 @@ https://auth.${DOMAIN}
 - Username: `admin`
 - Password: `admin`
 
-**⚠️ Important:** Change the default password immediately after first login!
+> **⚠️ IMPORTANT:** <span style="color: #DC382D;">**Change the default password immediately after first login!**</span>
 
 To change the password, run:
 ```bash
 ./change-authelia-password.sh
 ```
 
-### Managing Users
+### 👥 Managing Users
 
-#### View Current Users
+#### 👀 View Current Users
 
 Users are stored in a file-based database:
 
@@ -356,7 +365,7 @@ Users are stored in a file-based database:
 cat data/authelia/users_database.yml
 ```
 
-#### Add a New User
+#### ➕ Add a New User
 
 1. Generate a password hash:
 
@@ -397,7 +406,7 @@ users:
 docker compose -f authelia/docker-compose.yaml restart
 ```
 
-#### Change Password
+#### 🔒 Change Password
 
 **Easy Method (Recommended):**
 
@@ -428,7 +437,7 @@ The script will:
    docker compose -f authelia/docker-compose.yaml restart
    ```
 
-#### Disable a User
+#### 🚫 Disable a User
 
 Set `disabled: true` in the user's entry:
 
@@ -443,7 +452,7 @@ users:
       - users
 ```
 
-### Session Configuration
+### ⏱️ Session Configuration
 
 Sessions are configured in `data/authelia/configuration.yml`:
 
@@ -462,9 +471,9 @@ To change session duration:
 
 ---
 
-## Network Access
+## 🌐 Network Access
 
-### Wildcard DNS Configuration
+### 🌟 Wildcard DNS Configuration
 
 For external access to all services without creating individual DNS records, configure a **wildcard DNS** on your DNS provider (e.g., No-IP):
 
@@ -475,24 +484,24 @@ For external access to all services without creating individual DNS records, con
 This single record will automatically route all subdomains (`git.yourdomain.com`, `n8n.yourdomain.com`, etc.) to your server.
 
 **Benefits:**
-- ✅ One DNS record covers all services
-- ✅ No need to add records when adding new services
-- ✅ Simplified DNS management
+- <span style="color: #28A745;">**✅ One DNS record covers all services**</span>
+- <span style="color: #28A745;">**✅ No need to add records when adding new services**</span>
+- <span style="color: #28A745;">**✅ Simplified DNS management**</span>
 
 **After enabling wildcard DNS:**
-- `yourdomain.com` → Landing page (protected)
-- `auth.yourdomain.com` → Authelia SSO login
-- `git.yourdomain.com` → Gitea (protected)
-- `n8n.yourdomain.com` → n8n (protected)
-- `music.yourdomain.com` → Navidrome (protected)
-- `docs.yourdomain.com` → Paperless (protected)
-- `synapse.yourdomain.com` → Matrix (protected)
+- `yourdomain.com` → <span style="color: #0366D6;">**Landing page**</span> (protected)
+- `auth.yourdomain.com` → <span style="color: #DC382D;">**Authelia SSO login**</span>
+- `git.yourdomain.com` → <span style="color: #609926;">**Gitea**</span> (protected)
+- `n8n.yourdomain.com` → <span style="color: #EA4B71;">**n8n**</span> (protected)
+- `music.yourdomain.com` → <span style="color: #4B8BBE;">**Navidrome**</span> (protected)
+- `docs.yourdomain.com` → <span style="color: #46A046;">**Paperless**</span> (protected)
+- `synapse.yourdomain.com` → <span style="color: #609926;">**Matrix**</span> (protected)
 
 ---
 
-## Customization
+## 🎨 Customization
 
-### Customizing the Landing Page
+### 🖼️ Customizing the Landing Page
 
 The homelab includes a default landing page accessible at `http://local.server.name` (or `http://localhost` from the server itself). This page provides a central portal with links to all your services.
 
@@ -558,11 +567,11 @@ rm index.html
 
 ---
 
-## Docker Statistics Dashboard
+## 📊 Docker Statistics Dashboard
 
 The homelab includes a real-time Docker statistics dashboard integrated into the landing page. This feature provides live monitoring of your container infrastructure.
 
-### Features
+### ✨ Features
 
 The statistics dashboard displays:
 
@@ -580,7 +589,7 @@ The statistics dashboard displays:
 
 - **Auto-refresh**: Statistics update automatically every 10 seconds
 
-### Architecture
+### 🏗️ Architecture
 
 The dashboard is powered by a dedicated Flask API service that queries the Docker daemon:
 
@@ -605,7 +614,7 @@ Browser → Nginx/Traefik → Statistics API (Python) → Docker Socket → Cont
    - Docker socket mounted as read-only
    - HTTPS-only access with Let's Encrypt certificates
 
-### API Endpoints
+### 🔌 API Endpoints
 
 The statistics API exposes:
 
@@ -637,7 +646,7 @@ The statistics API exposes:
 }
 ```
 
-### Deployment
+### 🚀 Deployment
 
 The statistics service is automatically deployed with the homelab:
 
@@ -653,7 +662,7 @@ The service will be available at:
 - API: `https://yourdomain.com/api/docker/stats` (requires authentication)
 - Dashboard: Integrated into landing page at `https://yourdomain.com`
 
-### Testing
+### 🧪 Testing
 
 Test the statistics API:
 
@@ -672,9 +681,9 @@ curl https://yourdomain.com/health
 # Access via browser after logging in
 ```
 
-### Customization
+### 🎨 Customization
 
-#### Adjust Refresh Interval
+#### ⏱️ Adjust Refresh Interval
 
 Edit `templates/landing/default.index.html.template`:
 
@@ -690,7 +699,7 @@ Then regenerate:
 docker exec nginx nginx -s reload
 ```
 
-#### Modify Dashboard Styling
+#### 🎨 Modify Dashboard Styling
 
 The dashboard uses the same retro-terminal theme as the landing page. To customize:
 
@@ -703,9 +712,9 @@ The dashboard uses the same retro-terminal theme as the landing page. To customi
 docker exec nginx nginx -s reload
 ```
 
-### Troubleshooting
+### 🔧 Troubleshooting
 
-#### Dashboard Shows "ERROR LOADING DATA"
+#### ⚠️ Dashboard Shows "ERROR LOADING DATA"
 
 **Possible Causes:**
 - Statistics API container not running
@@ -734,7 +743,7 @@ docker exec nginx nginx -s reload
    docker compose -f stats-api/docker-compose.yaml restart
    ```
 
-#### Statistics Not Updating
+#### 🔄 Statistics Not Updating
 
 **Solutions:**
 
@@ -745,7 +754,7 @@ docker exec nginx nginx -s reload
    ```
 3. Clear browser cache and reload the page
 
-#### Permission Denied Errors
+#### 🚫 Permission Denied Errors
 
 **Cause:** The API cannot access the Docker socket
 
@@ -762,7 +771,7 @@ The `:ro` flag ensures read-only access for security.
 
 ---
 
-### Local Network Access
+### 🏠 Local Network Access
 
 To access your homelab services from other devices on your local network (e.g., `git.local.server.name`, `n8n.local.server.name`), you need to configure DNS resolution on each client device.
 
@@ -847,11 +856,82 @@ curl http://git.server_name
 
 ---
 
-### External Access via No-IP
+### 🌍 External Access via No-IP
 
-To expose your homelab to the internet with a dynamic IP address, use the **No-IP Dynamic Update Client (DUC) v3**.
+To expose your homelab to the internet with a dynamic IP address, use the **No-IP Dynamic Update Client (DUC)**.
 
-#### Method 1: On-Demand
+#### 🪟 Windows Setup
+
+For Windows systems, use the **No-IP DUC (Dynamic Update Client)** graphical application.
+
+##### 1. Download the Client
+
+1. Visit the official No-IP download page: [https://www.noip.com/download](https://www.noip.com/download)
+2. Download **DUC (Dynamic Update Client) for Windows**
+3. The file will be named something like `DUC-Windows-x64-v3.x.x.exe`
+
+##### 2. Install the Client
+
+1. Run the downloaded `.exe` file as Administrator (right-click → Run as administrator)
+2. Follow the installation wizard:
+   - Accept the license agreement
+   - Choose installation directory (default: `C:\Program Files (x86)\No-IP\DUC`)
+   - Complete the installation
+
+##### 3. Configure the Client
+
+1. Launch **No-IP DUC** from the Start Menu
+2. On first launch, you'll be prompted to login:
+   - Enter your **No-IP username** (email)
+   - Enter your **No-IP password**
+   - Click **Sign In**
+
+3. Select the hostname(s) to update:
+   - The client will display all your registered No-IP hostnames
+   - Check the box next to the hostname(s) you want to keep updated
+   - Click **Save**
+
+##### 4. Configure Auto-Start (Recommended)
+
+To ensure the client starts automatically with Windows:
+
+1. In the No-IP DUC application, go to **Settings** (gear icon)
+2. Enable the following options:
+   - ✅ **Launch on Windows startup**
+   - ✅ **Start minimized to system tray**
+   - ✅ **Run as Windows service** (requires admin privileges)
+3. Click **Save**
+
+##### 5. Verify It's Working
+
+1. Check the system tray (bottom-right corner) for the No-IP icon
+2. The icon should be **green** if the update is successful
+3. Right-click the icon → **Show** to see the current status
+4. Your public IP should be displayed and marked as "Up to date"
+
+##### Troubleshooting Windows Client
+
+**Client shows "Authentication Failed":**
+- Verify your No-IP username and password
+- Reset your password at [https://www.noip.com](https://www.noip.com) if needed
+
+**Client not updating IP:**
+- Check your firewall settings (allow No-IP DUC)
+- Ensure you have an active internet connection
+- Verify your No-IP account is active (free accounts require monthly confirmation)
+
+**Service won't start:**
+- Run the application as Administrator
+- Check Windows Services (`services.msc`) for "No-IP DUC Service"
+- Restart the service if needed
+
+---
+
+#### 🐧 Linux Setup
+
+For Linux systems, use the **No-IP DUC v3** command-line client.
+
+##### Method 1: On-Demand
 
 Use this method to run the process only once manually.
 
@@ -935,13 +1015,13 @@ sudo systemctl status noip-duc
 
 ---
 
-## Management
+## 🛠️ Management
 
-### Service Management
+### ⚡ Service Management
 
-#### Monitoring Services
+#### 📈 Monitoring Services
 
-##### Check Running Containers
+##### 🐳 Check Running Containers
 
 View all running containers:
 
@@ -955,7 +1035,7 @@ View all containers (including stopped):
 docker ps -a
 ```
 
-##### View Service Logs
+##### 📝 View Service Logs
 
 View logs for a specific service:
 
@@ -977,7 +1057,7 @@ View last 100 lines:
 docker logs --tail 100 <container_name>
 ```
 
-##### Inspect Network
+##### 🔍 Inspect Network
 
 Check the shared network configuration:
 
@@ -985,7 +1065,7 @@ Check the shared network configuration:
 docker network inspect ${SHARED_NETWORK}
 ```
 
-##### Reload Nginx Configuration
+##### 🔄 Reload Nginx Configuration
 
 After modifying nginx configuration files:
 
@@ -994,9 +1074,9 @@ docker exec nginx nginx -t          # Test configuration
 docker exec nginx nginx -s reload   # Reload if test passes
 ```
 
-#### Updating Services
+#### 🔄 Updating Services
 
-##### Update All Services
+##### 📦 Update All Services
 
 Pull the latest images and restart containers:
 
@@ -1006,7 +1086,7 @@ docker compose pull
 docker compose up -d
 ```
 
-##### Update Specific Service
+##### 🎯 Update Specific Service
 
 ```bash
 cd gitea
@@ -1014,7 +1094,7 @@ docker compose pull
 docker compose up -d
 ```
 
-##### Update All at Once
+##### ⚡ Update All at Once
 
 ```bash
 ./shutdown.sh
@@ -1030,11 +1110,11 @@ docker compose -f synapse/docker compose.yaml pull
 
 ---
 
-### Backup and Restore
+### 💾 Backup and Restore
 
 The homelab includes automated backup and restore scripts for easy disaster recovery and infrastructure migration.
 
-#### Automated Backup
+#### 🤖 Automated Backup
 
 Create a complete backup of all container data:
 
@@ -1043,11 +1123,11 @@ Create a complete backup of all container data:
 ```
 
 **Features:**
-- Backs up all data directories (`data/`, `db/`, `nginx/`, `landing/`, `logs/`)
-- Includes configuration files (`.env`, `index.html`)
-- Saves to `~/bkp/homelab_backup_YYYYMMDD_HHMMSS.zip`
-- Warns if containers are running (recommended to stop before backup)
-- Displays backup size and location
+- <span style="color: #0366D6;">**Backs up all data directories**</span> (`data/`, `db/`, `nginx/`, `landing/`, `logs/`)
+- <span style="color: #0366D6;">**Includes configuration files**</span> (`.env`, `index.html`)
+- <span style="color: #0366D6;">**Saves to**</span> `~/bkp/homelab_backup_YYYYMMDD_HHMMSS.zip`
+- <span style="color: #F9826C;">**Warns if containers are running**</span> (recommended to stop before backup)
+- <span style="color: #28A745;">**Displays backup size and location**</span>
 
 **What is backed up:**
 - All service data volumes
@@ -1057,7 +1137,7 @@ Create a complete backup of all container data:
 - Application logs
 - Environment configuration
 
-#### Automated Restore
+#### ♻️ Automated Restore
 
 Restore from a backup with interactive selection:
 
@@ -1066,13 +1146,13 @@ Restore from a backup with interactive selection:
 ```
 
 **Features:**
-- Shows the 10 most recent backups
-- Default: latest backup (press ENTER)
-- Manual selection: enter number (0-9) to choose a specific backup
-- Creates a safety backup before restoring
-- Automatically stops running containers (with confirmation)
-- Restores correct file permissions
-- Warns before overwriting current data
+- <span style="color: #0366D6;">**Shows the 10 most recent backups**</span>
+- <span style="color: #28A745;">**Default: latest backup**</span> (press ENTER)
+- <span style="color: #0366D6;">**Manual selection:**</span> enter number (0-9) to choose a specific backup
+- <span style="color: #28A745;">**Creates a safety backup before restoring**</span>
+- <span style="color: #F9826C;">**Automatically stops running containers**</span> (with confirmation)
+- <span style="color: #0366D6;">**Restores correct file permissions**</span>
+- <span style="color: #DC382D;">**Warns before overwriting current data**</span>
 
 **Example workflow:**
 
@@ -1089,7 +1169,7 @@ Restore from a backup with interactive selection:
 # Enter a number (0-9) to select from the list
 ```
 
-#### Manual Backup Methods
+#### 📝 Manual Backup Methods
 
 For advanced users who prefer manual control:
 
@@ -1135,11 +1215,11 @@ cat backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER}
 
 ---
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
-### Common Issues
+### ⚠️ Common Issues
 
-#### Nginx Fails to Start
+#### ❌ Nginx Fails to Start
 
 **Symptom:** Nginx container exits immediately
 
@@ -1167,7 +1247,7 @@ cat backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER}
    sudo netstat -tulpn | grep -E ':(80|443|8448)'
    ```
 
-#### Database Connection Failed
+#### 🗄️ Database Connection Failed
 
 **Symptom:** Services can't connect to PostgreSQL
 
@@ -1190,7 +1270,7 @@ cat backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER}
    docker exec -it db psql -U ${POSTGRES_USER} -d gitea
    ```
 
-#### 502 Bad Gateway
+#### 🚫 502 Bad Gateway
 
 **Symptom:** Nginx returns 502 error
 
@@ -1216,7 +1296,7 @@ cat backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER}
    docker network inspect ${SHARED_NETWORK}
    ```
 
-#### Container Exits Immediately
+#### 💥 Container Exits Immediately
 
 **Symptom:** Container starts then stops
 
@@ -1237,7 +1317,7 @@ cat backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER}
    sudo chown -R ${HOST_UID}:${HOST_GID} data/<service_name>/
    ```
 
-#### Services Can't Communicate
+#### 🔌 Services Can't Communicate
 
 **Symptom:** Services can't reach each other
 
@@ -1258,7 +1338,7 @@ cat backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER}
    docker network create ${SHARED_NETWORK}
    ```
 
-#### Local Hostname Not Resolving
+#### 🌐 Local Hostname Not Resolving
 
 **Symptom:** `git.local.server.name` doesn't work from client device
 
@@ -1278,7 +1358,7 @@ cat backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER}
    docker exec nginx netstat -tulpn | grep :80
    ```
 
-#### Authentication Loop / Redirect Issues
+#### 🔄 Authentication Loop / Redirect Issues
 
 **Symptom:** Redirected to login page repeatedly, or "401 Unauthorized" errors
 
@@ -1316,7 +1396,7 @@ cat backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER}
    docker compose -f authelia/docker-compose.yaml restart
    ```
 
-#### Cannot Login to Authelia
+#### 🔐 Cannot Login to Authelia
 
 **Symptom:** Login fails with "Incorrect username or password"
 
@@ -1348,20 +1428,20 @@ cat backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER}
 
 ---
 
-## Security
+## 🔒 Security
 
-### Security Best Practices
+### 🛡️ Security Best Practices
 
-#### Change Default Passwords
+#### 🔑 Change Default Passwords
 
-After initial setup, change all default passwords:
+> **🔒 SECURITY:** <span style="color: #DC382D;">**After initial setup, change ALL default passwords!**</span>
 
-1. **Authelia admin password** - Login to `https://auth.${DOMAIN}` and change password immediately
-2. **PostgreSQL admin password** - Update in `.env` and recreate database
+1. <span style="color: #DC382D;">**Authelia admin password**</span> - Login to `https://auth.${DOMAIN}` and change password immediately
+2. <span style="color: #316192;">**PostgreSQL admin password**</span> - Update in `.env` and recreate database
 3. **Service-specific passwords** - Update in each service's web interface (note: with SSO, you may not need service-specific logins)
-4. **Synapse registration secret** - Update in `.env` and regenerate config
+4. <span style="color: #609926;">**Synapse registration secret**</span> - Update in `.env` and regenerate config
 
-#### Firewall Configuration
+#### 🔥 Firewall Configuration
 
 Configure your firewall to only allow necessary ports:
 
@@ -1377,9 +1457,9 @@ sudo ufw allow 8448/tcp
 sudo ufw enable
 ```
 
-### SSL Certificate Management
+### 🔐 SSL Certificate Management
 
-#### SSL Certificate Cleanup
+#### 🧹 SSL Certificate Cleanup
 
 If you need to remove existing certificates before regenerating them:
 
@@ -1400,7 +1480,7 @@ After cleanup, regenerate certificates with:
 ./setup-ssl.sh
 ```
 
-#### SSL Certificate Renewal
+#### 🔄 SSL Certificate Renewal
 
 Let's Encrypt certificates expire every 90 days. Set up automatic renewal:
 
@@ -1418,7 +1498,7 @@ Add this line to renew certificates monthly:
 0 0 1 * * certbot renew --quiet && docker exec nginx nginx -s reload
 ```
 
-#### Secure the .env File
+#### 🔒 Secure the .env File
 
 Protect your environment file:
 
@@ -1428,7 +1508,7 @@ chmod 600 .env
 
 Never commit `.env` to version control.
 
-#### Regular Updates
+#### 🔄 Regular Updates
 
 Keep your services updated to patch security vulnerabilities:
 
@@ -1441,11 +1521,11 @@ docker compose -f */docker compose.yaml pull
 
 ---
 
-## Reference
+## 📚 Reference
 
-### Port Mapping Reference
+### 🔌 Port Mapping Reference
 
-#### External Ports (Exposed to Host)
+#### 🌐 External Ports (Exposed to Host)
 
 | Service    | Port | Protocol | Purpose                    |
 |------------|------|----------|----------------------------|
@@ -1453,7 +1533,7 @@ docker compose -f */docker compose.yaml pull
 | Nginx      | 443  | HTTPS    | Secure web traffic         |
 | Nginx      | 8448 | HTTPS    | Matrix federation          |
 
-#### Internal Ports (Container Network Only)
+#### 🔒 Internal Ports (Container Network Only)
 
 | Service    | Port | Access Via                          |
 |------------|------|-------------------------------------|
@@ -1466,6 +1546,6 @@ docker compose -f */docker compose.yaml pull
 | Synapse    | 8008 | `synapse.${DOMAIN}` via nginx       |
 | Redis      | 6379 | Paperless only                      |
 
-**Note:** Only nginx exposes ports to the host. All other services are accessed through nginx reverse proxy.
+**Note:** <span style="color: #009639;">**Only nginx exposes ports to the host.**</span> All other services are accessed through nginx reverse proxy.
 
-**Authentication:** All services (except Authelia itself) require authentication via Authelia SSO.
+**Authentication:** <span style="color: #DC382D;">**All services (except Authelia itself) require authentication via Authelia SSO.**</span>

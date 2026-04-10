@@ -50,6 +50,8 @@
             <div class="service-url">synapse.${DOMAIN}</div>
         </a>
     </div>
+
+    <p style="margin-top: 15px; opacity: 0.5;">Template created by Claudione</p>
 </div>
 
 <script>

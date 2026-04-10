@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 def get_docker_client():
     try:
+        # from_env() will use DOCKER_HOST env var or default to unix socket
         client = docker.from_env()
         # Test the connection
         client.ping()

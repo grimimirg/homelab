@@ -61,6 +61,8 @@ set_permissions() {
     "setup-ssl.sh"
     "init-db.sh"
     "restart-service.sh"
+    "backup.sh"
+    "restore.sh"
   )
   
   echo "Setting executable permissions for shell scripts..."

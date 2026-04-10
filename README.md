@@ -59,12 +59,14 @@ set of orchestration scripts.
 ## Project Structure
 
 ```
+├── backup.sh                                # Automated backup script for all container data
 ├── build.sh                                 # Orchestrator to build and boot all services
 ├── change-authelia-password.sh              # Helper script to change Authelia user passwords
 ├── cleanup.sh                               # Full environment wipe script
 ├── index.html                               # (Optional) Custom landing page
 ├── init-db.sh                               # Automated DB/User provisioning
 ├── README.md                                # Documentation
+├── restore.sh                               # Interactive restore script with backup selection
 ├── scaffold.sh                              # Scaffolding and config generator
 ├── setup-ssl.sh                             # SSL certificate helper
 ├── shutdown.sh                              # Orchestrator to manually stop all services
@@ -1030,7 +1032,66 @@ docker compose -f synapse/docker compose.yaml pull
 
 ### Backup and Restore
 
-#### What to Backup
+The homelab includes automated backup and restore scripts for easy disaster recovery and infrastructure migration.
+
+#### Automated Backup
+
+Create a complete backup of all container data:
+
+```bash
+./backup.sh
+```
+
+**Features:**
+- Backs up all data directories (`data/`, `db/`, `nginx/`, `landing/`, `logs/`)
+- Includes configuration files (`.env`, `index.html`)
+- Saves to `~/bkp/homelab_backup_YYYYMMDD_HHMMSS.zip`
+- Warns if containers are running (recommended to stop before backup)
+- Displays backup size and location
+
+**What is backed up:**
+- All service data volumes
+- PostgreSQL database files
+- Nginx configurations
+- Landing page files
+- Application logs
+- Environment configuration
+
+#### Automated Restore
+
+Restore from a backup with interactive selection:
+
+```bash
+./restore.sh
+```
+
+**Features:**
+- Shows the 10 most recent backups
+- Default: latest backup (press ENTER)
+- Manual selection: enter number (0-9) to choose a specific backup
+- Creates a safety backup before restoring
+- Automatically stops running containers (with confirmation)
+- Restores correct file permissions
+- Warns before overwriting current data
+
+**Example workflow:**
+
+```bash
+# Create a backup
+./backup.sh
+
+# Later, restore the latest backup
+./restore.sh
+# Press ENTER to use the latest backup
+
+# Or restore a specific backup
+./restore.sh
+# Enter a number (0-9) to select from the list
+```
+
+#### Manual Backup Methods
+
+For advanced users who prefer manual control:
 
 ##### 1. Environment Configuration
 
@@ -1039,8 +1100,6 @@ cp .env .env.backup
 ```
 
 ##### 2. Data Volumes
-
-All service data is stored in the `data/` directory:
 
 ```bash
 tar -czf homelab-data-backup-$(date +%Y%m%d).tar.gz data/
@@ -1060,30 +1119,18 @@ Backup specific database:
 docker exec db pg_dump -U ${POSTGRES_USER} gitea > gitea-backup-$(date +%Y%m%d).sql
 ```
 
-##### 4. SSL Certificates
+##### 4. Manual Restore
 
-```bash
-tar -czf ssl-backup-$(date +%Y%m%d).tar.gz ssl/
-```
-
-#### Restore from Backup
-
-##### Restore Data Volumes
+Restore data volumes:
 
 ```bash
 tar -xzf homelab-data-backup-YYYYMMDD.tar.gz
 ```
 
-##### Restore PostgreSQL Database
+Restore PostgreSQL database:
 
 ```bash
 cat backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER}
-```
-
-##### Restore Specific Database
-
-```bash
-cat gitea-backup-YYYYMMDD.sql | docker exec -i db psql -U ${POSTGRES_USER} -d gitea
 ```
 
 ---

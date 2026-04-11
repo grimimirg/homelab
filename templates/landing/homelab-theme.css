@@ -169,6 +169,15 @@ header p {
     opacity: 0.6;
 }
 
+.stat-detail {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: #8ab5b8;
+    margin-top: 5px;
+    opacity: 0.8;
+    letter-spacing: 1px;
+}
+
 /* Container List */
 .container-list {
     background: rgba(168, 218, 220, 0.05);

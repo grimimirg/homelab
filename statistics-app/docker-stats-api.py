@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
+import docker
+import logging
+import psutil
+import traceback
+from datetime import datetime
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import docker
-from datetime import datetime
-import logging
-import traceback
 
 app = Flask(__name__)
 CORS(app)
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
 
 def get_docker_client():
     try:
@@ -25,16 +27,17 @@ def get_docker_client():
         logger.error(traceback.format_exc())
         return None
 
+
 def format_uptime(created_at):
     try:
         created = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
         now = datetime.now(created.tzinfo)
         delta = now - created
-        
+
         days = delta.days
         hours, remainder = divmod(delta.seconds, 3600)
         minutes, _ = divmod(remainder, 60)
-        
+
         if days > 0:
             return f"{days}d {hours}h"
         elif hours > 0:
@@ -44,11 +47,12 @@ def format_uptime(created_at):
     except:
         return "N/A"
 
+
 @app.route('/api/docker/stats', methods=['GET'])
 def get_stats():
     logger.info("Received request for /api/docker/stats")
     client = get_docker_client()
-    
+
     if not client:
         logger.error("Cannot connect to Docker daemon")
         return jsonify({
@@ -59,23 +63,23 @@ def get_stats():
             'networks': 0,
             'containers': []
         }), 500
-    
+
     try:
         logger.info("Fetching containers...")
         containers = client.containers.list(all=True)
         logger.info(f"Found {len(containers)} containers")
-        
+
         logger.info("Fetching images...")
         images = client.images.list()
         logger.info(f"Found {len(images)} images")
-        
+
         logger.info("Fetching networks...")
         networks = client.networks.list()
         logger.info(f"Found {len(networks)} networks")
-        
+
         running_count = sum(1 for c in containers if c.status == 'running')
         stopped_count = len(containers) - running_count
-        
+
         container_list = []
         for container in containers:
             logger.info(f"Processing container: {container.name}")
@@ -86,7 +90,7 @@ def get_stats():
                 'state': container.status,
                 'uptime': format_uptime(container.attrs['Created']) if container.status == 'running' else 'Stopped'
             })
-        
+
         response = {
             'running': running_count,
             'stopped': stopped_count,
@@ -96,7 +100,7 @@ def get_stats():
         }
         logger.info(f"Returning response: {response}")
         return jsonify(response)
-    
+
     except Exception as e:
         logger.error(f"Error in get_stats: {str(e)}")
         logger.error(traceback.format_exc())
@@ -109,14 +113,15 @@ def get_stats():
             'containers': []
         }), 500
 
+
 @app.route('/api/docker/container/<container_id>/start', methods=['POST'])
 def start_container(container_id):
     logger.info(f"Received request to start container: {container_id}")
     client = get_docker_client()
-    
+
     if not client:
         return jsonify({'error': 'Cannot connect to Docker daemon'}), 500
-    
+
     try:
         container = client.containers.get(container_id)
         container.start()
@@ -130,14 +135,15 @@ def start_container(container_id):
         logger.error(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/docker/container/<container_id>/stop', methods=['POST'])
 def stop_container(container_id):
     logger.info(f"Received request to stop container: {container_id}")
     client = get_docker_client()
-    
+
     if not client:
         return jsonify({'error': 'Cannot connect to Docker daemon'}), 500
-    
+
     try:
         container = client.containers.get(container_id)
         container.stop()
@@ -151,14 +157,15 @@ def stop_container(container_id):
         logger.error(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/docker/container/<container_id>/restart', methods=['POST'])
 def restart_container(container_id):
     logger.info(f"Received request to restart container: {container_id}")
     client = get_docker_client()
-    
+
     if not client:
         return jsonify({'error': 'Cannot connect to Docker daemon'}), 500
-    
+
     try:
         container = client.containers.get(container_id)
         container.restart()
@@ -172,9 +179,45 @@ def restart_container(container_id):
         logger.error(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
+
+@app.route('/api/server/performances', methods=['GET'])
+def performances():
+    memory = psutil.virtual_memory()
+    swap = psutil.swap_memory()
+    net_io = psutil.net_io_counters()
+
+    return jsonify({
+        'cpuPercent': psutil.cpu_percent(),
+        'memoryPercent': memory.percent,
+        'memory': {
+            'total': round(memory.total / (1024 ** 3), 2),
+            'available': round(memory.available / (1024 ** 3), 2),
+            'used': round(memory.used / (1024 ** 3), 2),
+            'percent': memory.percent
+        },
+        'swap': {
+            'total': round(swap.total / (1024 ** 3), 2),
+            'used': round(swap.used / (1024 ** 3), 2),
+            'percent': swap.percent
+        },
+        'diskPercent': psutil.disk_usage('/').percent,
+        'network': {
+            'bytesSent': net_io.bytes_sent,
+            'bytesRecv': net_io.bytes_recv,
+            'packetsSent': net_io.packets_sent,
+            'packetsRecv': net_io.packets_recv,
+            'errorsIn': net_io.errin,
+            'errorsOut': net_io.errout
+        },
+        'uptime': format_uptime(datetime.fromisoformat(psutil.boot_time())),
+        'batteryPercent': psutil.sensors_battery().percent if psutil.sensors_battery().power_plugged else None
+    })
+
+
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({'status': 'healthy'}), 200
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

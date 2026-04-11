@@ -24,7 +24,7 @@ server {
     root /usr/share/nginx/html/landing;
     index index.html;
 
-    location /api/docker/ {
+    location /api/ {
         auth_request /authelia;
         auth_request_set ${DOLLAR}user ${DOLLAR}upstream_http_remote_user;
         auth_request_set ${DOLLAR}groups ${DOLLAR}upstream_http_remote_groups;
@@ -33,7 +33,7 @@ server {
 
         error_page 401 =302 https://auth.${DOMAIN}/?rd=${DOLLAR}scheme://${DOLLAR}http_host${DOLLAR}request_uri;
 
-        proxy_pass http://docker-stats-api:5000/api/docker/;
+        proxy_pass http://docker-stats-api:5000/api/;
         proxy_set_header Host ${DOLLAR}host;
         proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
         proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;

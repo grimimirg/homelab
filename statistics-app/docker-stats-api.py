@@ -210,7 +210,7 @@ def performances():
             'errorsOut': net_io.errout
         },
         'uptime': format_uptime(datetime.fromtimestamp(psutil.boot_time()).isoformat()),
-        'batteryPercent': psutil.sensors_battery().percent if psutil.sensors_battery().power_plugged else None
+        'batteryPercent': psutil.sensors_battery().percent
     })
 
 

@@ -93,8 +93,8 @@ set of orchestration scripts.
 ├── setup-ssl.sh                             # SSL certificate helper
 ├── shutdown.sh                              # Orchestrator to manually stop all services
 ├── startup.sh                               # Orchestrator to manually start all services
-├── statistics-app                           # Docker stats API application
-│    ├── docker-stats-api.py                 # Flask API for Docker statistics
+├── system-metrics-api                       # System metrics and Docker stats API
+│    ├── app.py                 # Flask API for system and Docker metrics
 │    ├── Dockerfile                          # Container definition
 │    ├── requirements.txt                    # Python dependencies
 │    ├── README.md                           # Application documentation
@@ -131,8 +131,8 @@ set of orchestration scripts.
     ├── paperless                            # Document management + Redis
     │   ├── paperless.conf.template          # Nginx proxy conf for paperless
     │   └── paperless.yaml.template          # Docker Compose template for paperless
-    ├── statistics-app                       # Docker statistics API
-    │   └── docker-compose.yaml.template     # Docker Compose template for stats API
+    ├── system-metrics-api                   # System metrics and Docker statistics API
+    │   └── docker-compose.yaml.template     # Docker Compose template for metrics API
     └── synapse                              # Synapse server definitions
         ├── synapse.conf.template            # Nginx proxy conf for synapse
         └── synapse.yaml.template            # Docker Compose template for synapse
@@ -265,7 +265,7 @@ docker ps
 # You should see these containers:
 # - db (PostgreSQL)
 # - authelia (SSO)
-# - docker-stats-api (Statistics API)
+# - system-metrics-api (Metrics API)
 # - nginx (Reverse Proxy)
 # - gitea
 # - n8n
@@ -287,11 +287,11 @@ docker ps
    - **System Status** section showing real-time Docker statistics
    - **Active Containers** list with running containers
 
-**Test the statistics API** (optional):
+**Test the metrics API** (optional):
 
 ```bash
-# From the statistics-app directory
-cd statistics-app
+# From the system-metrics-api directory
+cd system-metrics-api
 ./test-docker-stats.sh
 
 # Or manually test the endpoint (requires authentication)
@@ -707,12 +707,12 @@ The service will be available at:
 
 1. Check if the container is running:
    ```bash
-   docker ps | grep docker-stats-api
+   docker ps | grep system-metrics-api
    ```
 
 2. Check container logs for errors:
    ```bash
-   docker logs docker-stats-api
+   docker logs system-metrics-api
    ```
 
 3. Verify WebSocket connection in browser console (F12):
@@ -739,7 +739,7 @@ The performance monitoring is designed to be lightweight:
 - Minimal CPU overhead from `psutil`
 - WebSocket connection uses minimal bandwidth
 
-If you experience issues, you can adjust the update interval in `docker-stats-api.py`:
+If you experience issues, you can adjust the update interval in `app.py`:
 
 ```python
 # In background_performance_emitter()
@@ -780,10 +780,10 @@ Browser → Nginx/Traefik → Statistics API (Python) → Docker Socket → Cont
 
 **Components:**
 
-1. **statistics-app/** - Python Flask application
-   - `docker-stats-api.py` - REST API that queries Docker
+1. **system-metrics-api/** - Python Flask application
+   - `app.py` - REST API that queries Docker and system metrics
    - `Dockerfile` - Container definition
-   - `requirements.txt` - Python dependencies (flask, flask-cors, docker)
+   - `requirements.txt` - Python dependencies (flask, flask-cors, docker, psutil)
 
 2. **Frontend Integration** - Landing page dashboard
    - JavaScript fetches `/api/docker/stats` every 10 seconds
@@ -848,7 +848,7 @@ The service will be available at:
 Test the statistics API:
 
 ```bash
-cd statistics-app
+cd system-metrics-api
 ./test-docker-stats.sh
 ```
 
@@ -906,17 +906,17 @@ docker exec nginx nginx -s reload
 
 1. Check if the container is running:
    ```bash
-   docker ps | grep docker-stats-api
+   docker ps | grep system-metrics-api
    ```
 
 2. Check container logs:
    ```bash
-   docker logs docker-stats-api
+   docker logs system-metrics-api
    ```
 
 3. Verify Docker socket is mounted:
    ```bash
-   docker inspect docker-stats-api | grep docker.sock
+   docker inspect system-metrics-api | grep docker.sock
    ```
 
 4. Restart the statistics service:
@@ -941,7 +941,7 @@ docker exec nginx nginx -s reload
 
 **Solution:**
 
-Ensure the Docker socket is mounted with correct permissions in `templates/statistics-app/docker-compose.yaml.template`:
+Ensure the Docker socket is mounted with correct permissions in `templates/system-metrics-api/docker-compose.yaml.template`:
 
 ```yaml
 volumes:

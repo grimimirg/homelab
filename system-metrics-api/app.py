@@ -2,13 +2,13 @@
 import docker
 import logging
 import psutil
+import time
 import traceback
 from datetime import datetime
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from threading import Thread
-import time
 
 app = Flask(__name__)
 CORS(app)
@@ -216,18 +216,17 @@ def _collect_server_performances():
     }
 
 
+# PERFORMANCES
+
 @app.route('/api/server/performances', methods=['GET'])
 def performances():
     return jsonify(_collect_server_performances())
 
 
-@app.route('/health', methods=['GET'])
-def health():
-    return jsonify({'status': 'healthy'}), 200
-
-
+# websocket
 def get_server_performances():
     return _collect_server_performances()
+
 
 def background_performance_emitter():
     while True:
@@ -239,14 +238,24 @@ def background_performance_emitter():
             logger.error(f"Error emitting performance data: {e}")
             time.sleep(2)
 
+
 @socketio.on('connect', namespace='/performance')
 def handle_connect():
     logger.info('Client connected to performance stream')
     emit('server_performance', get_server_performances())
 
+
 @socketio.on('disconnect', namespace='/performance')
 def handle_disconnect():
     logger.info('Client disconnected from performance stream')
+
+
+# TEST
+
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'healthy'}), 200
+
 
 if __name__ == '__main__':
     background_thread = Thread(target=background_performance_emitter, daemon=True)

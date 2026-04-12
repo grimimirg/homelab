@@ -204,8 +204,8 @@ generate_from_template "templates/authelia/users_database.yml.template" "data/au
 
 echo ""
 echo "==============================="
-echo "STATISTICS DASHBOARD"
-generate_from_template "templates/statistics-app/docker-compose.yaml.template" "stats-api/docker-compose.yaml"
+echo "SYSTEM METRICS API"
+generate_from_template "templates/system-metrics-api/docker-compose.yaml.template" "stats-api/docker-compose.yaml"
 
 # Copy shared theme CSS for both landing page and Authelia
 mkdir -p landing

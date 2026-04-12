@@ -180,7 +180,7 @@
             console.log('Connected to performance stream');
         });
 
-        // the method server_performance is defined in the docker-stats-api.py file
+        // the method server_performance is defined in the app.py file
         socket.on('server_performance', (data) => {
             updateServerPerformances(data);
         });

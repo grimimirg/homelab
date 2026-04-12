@@ -1,9 +1,9 @@
 services:
-  docker-stats-api:
+  system-metrics-api:
     build:
-      context: ../statistics-app
+      context: ../system-metrics-api
       dockerfile: Dockerfile
-    container_name: docker-stats-api
+    container_name: system-metrics-api
     restart: unless-stopped
     user: root
     group_add:

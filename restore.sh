@@ -2,6 +2,12 @@
 
 set -e
 
+if [ "$EUID" -ne 0 ]; then
+    echo "ERROR: This script must be run with sudo"
+    echo "Usage: sudo ./restore.sh"
+    exit 1
+fi
+
 if [ -n "$SUDO_USER" ]; then
     BACKUP_DIR="$(eval echo ~$SUDO_USER)/bkp"
 else
@@ -175,7 +181,11 @@ echo "Step 3/5: Removing current data directories..."
 for dir in data db nginx landing logs; do
     if [ -d "$dir" ]; then
         echo "  - Removing $dir..."
-        rm -rf "$dir"
+        rm -rf "$dir" 2>/dev/null || {
+            echo "    WARNING: Some files require elevated permissions, retrying..."
+            chmod -R u+w "$dir" 2>/dev/null || true
+            rm -rf "$dir"
+        }
     fi
 done
 
@@ -203,20 +213,40 @@ cd "$OLDPWD"
 echo ""
 echo "==============================="
 echo "Step 5/5: Setting correct permissions..."
-if [ -f ".env" ]; then
-    source .env
-    export HOST_UID=$(id -u)
-    export HOST_GID=$(id -g)
-    
-    echo "  - Setting permissions for application data..."
-    sudo chown -R $HOST_UID:$HOST_GID data/n8n data/gitea data/navidrome data/paperless data/authelia 2>/dev/null || true
-    chmod -R 755 data/n8n data/gitea data/navidrome data/paperless data/authelia 2>/dev/null || true
-    
-    echo "  - Setting permissions for PostgreSQL..."
-    sudo chown -R $HOST_UID:$HOST_GID db/postgres 2>/dev/null || true
-    chmod -R 700 db/postgres 2>/dev/null || true
+
+if [ -n "$SUDO_USER" ]; then
+    REAL_USER="$SUDO_USER"
+    REAL_UID=$(id -u "$SUDO_USER")
+    REAL_GID=$(id -g "$SUDO_USER")
 else
-    echo "  - WARNING: .env file not found, skipping permission setup"
+    REAL_USER="$USER"
+    REAL_UID=$(id -u)
+    REAL_GID=$(id -g)
+fi
+
+echo "  - Setting ownership to $REAL_USER ($REAL_UID:$REAL_GID)..."
+
+for dir in data db nginx landing logs; do
+    if [ -d "$dir" ]; then
+        echo "    - Fixing $dir..."
+        chown -R $REAL_UID:$REAL_GID "$dir" 2>/dev/null || true
+    fi
+done
+
+for file in .env index.html; do
+    if [ -f "$file" ]; then
+        chown $REAL_UID:$REAL_GID "$file" 2>/dev/null || true
+    fi
+done
+
+echo "  - Setting specific permissions for PostgreSQL..."
+if [ -d "db/postgres" ]; then
+    chmod -R 700 db/postgres 2>/dev/null || true
+fi
+
+echo "  - Setting permissions for Gitea SSH..."
+if [ -d "data/gitea/ssh" ]; then
+    chmod 700 data/gitea/ssh 2>/dev/null || true
 fi
 
 echo ""

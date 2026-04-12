@@ -4,7 +4,7 @@ set -e
 
 BACKUP_DIR="$HOME/bkp"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-BACKUP_NAME="homelab_backup_${TIMESTAMP}.zip"
+BACKUP_NAME="homelab_backup_${TIMESTAMP}.tar.gz"
 BACKUP_PATH="${BACKUP_DIR}/${BACKUP_NAME}"
 TEMP_DIR=$(mktemp -d)
 
@@ -82,7 +82,7 @@ done
 echo ""
 echo "Step 4/4: Creating compressed archive..."
 cd "$TEMP_DIR"
-zip -r -q "$BACKUP_PATH" "homelab_backup"
+tar -czf "$BACKUP_PATH" "homelab_backup"
 
 BACKUP_SIZE=$(du -h "$BACKUP_PATH" | cut -f1)
 

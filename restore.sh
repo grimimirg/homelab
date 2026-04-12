@@ -29,7 +29,7 @@ trap cleanup EXIT
 echo "Searching for backups in: $BACKUP_DIR"
 echo ""
 
-BACKUPS=($(ls -t "$BACKUP_DIR"/homelab_backup_*.zip 2>/dev/null || true))
+BACKUPS=($(ls -t "$BACKUP_DIR"/homelab_backup_*.tar.gz 2>/dev/null || true))
 
 if [ ${#BACKUPS[@]} -eq 0 ]; then
     echo "ERROR: No backups found in $BACKUP_DIR"
@@ -117,7 +117,7 @@ fi
 echo ""
 echo "==============================="
 echo "WARNING: This will OVERWRITE all current data!"
-echo "Current data directories will be backed up to: ${BACKUP_DIR}/pre_restore_backup_$(date +%Y%m%d_%H%M%S).zip"
+echo "Current data directories will be backed up to: ${BACKUP_DIR}/pre_restore_backup_$(date +%Y%m%d_%H%M%S).tar.gz"
 echo ""
 read -p "Are you sure you want to continue? (yes/NO): " CONFIRM
 
@@ -129,7 +129,7 @@ fi
 echo ""
 echo "==============================="
 echo "Step 1/5: Creating safety backup of current data..."
-PRE_RESTORE_BACKUP="${BACKUP_DIR}/pre_restore_backup_$(date +%Y%m%d_%H%M%S).zip"
+PRE_RESTORE_BACKUP="${BACKUP_DIR}/pre_restore_backup_$(date +%Y%m%d_%H%M%S).tar.gz"
 SAFETY_TEMP=$(mktemp -d)
 
 mkdir -p "${SAFETY_TEMP}/current_data"
@@ -146,7 +146,7 @@ for file in .env index.html; do
 done
 
 cd "$SAFETY_TEMP"
-zip -r -q "$PRE_RESTORE_BACKUP" "current_data" 2>/dev/null || true
+tar -czf "$PRE_RESTORE_BACKUP" "current_data" 2>/dev/null || true
 cd - > /dev/null
 rm -rf "$SAFETY_TEMP"
 echo ""
@@ -156,7 +156,7 @@ echo "Safety backup created: $(basename $PRE_RESTORE_BACKUP)"
 echo ""
 echo "==============================="
 echo "Step 2/5: Extracting backup archive..."
-unzip -q "$SELECTED_BACKUP" -d "$TEMP_DIR"
+tar -xzf "$SELECTED_BACKUP" -C "$TEMP_DIR"
 
 EXTRACT_DIR="${TEMP_DIR}/homelab_backup"
 if [ ! -d "$EXTRACT_DIR" ]; then

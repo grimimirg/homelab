@@ -41,14 +41,20 @@ deployment, and cleanup.
   - [🌟 Wildcard DNS Configuration](#-wildcard-dns-configuration)
 - [🎨 Customization](#-customization)
   - [🖼️ Customizing the Landing Page](#️-customizing-the-landing-page)
-- [📊 Docker Statistics Dashboard](#-docker-statistics-dashboard)
+- [📈 Server Performance Monitoring](#-server-performance-monitoring)
   - [✨ Features](#-features)
   - [🏗️ Architecture](#️-architecture-1)
   - [🔌 API Endpoints](#-api-endpoints)
   - [🚀 Deployment](#-deployment)
+  - [🔧 Troubleshooting](#-troubleshooting-1)
+- [📊 Docker Statistics Dashboard](#-docker-statistics-dashboard)
+  - [✨ Features](#-features-1)
+  - [🏗️ Architecture](#️-architecture-2)
+  - [🔌 API Endpoints](#-api-endpoints-1)
+  - [🚀 Deployment](#-deployment-1)
   - [🧪 Testing](#-testing)
   - [🎨 Customization](#-customization-1)
-  - [🔧 Troubleshooting](#-troubleshooting-1)
+  - [🔧 Troubleshooting](#-troubleshooting-2)
 - [🛠️ Management](#️-management)
   - [⚡ Service Management](#-service-management)
   - [💾 Backup and Restore](#-backup-and-restore)
@@ -570,6 +576,175 @@ rm index.html
 ```
 
 **Note:** The `index.html` file in the project root is gitignored, so your customizations won't be committed to version control.
+
+---
+
+## 📈 Server Performance Monitoring
+
+The homelab includes real-time server performance monitoring integrated into the landing page. This feature provides live metrics about your server's resource usage.
+
+### ✨ Features
+
+The performance monitoring displays:
+
+- **CPU Usage**
+  - Current CPU utilization percentage
+  - Real-time updates
+
+- **Memory Statistics**
+  - Total memory available
+  - Memory used and available (in GB)
+  - Memory usage percentage
+
+- **Swap Memory**
+  - Total swap space
+  - Swap used (in GB)
+  - Swap usage percentage
+
+- **Disk Usage**
+  - Root partition usage percentage
+
+- **Network Statistics**
+  - Bytes sent and received
+  - Packets sent and received
+  - Network errors (in/out)
+
+- **System Uptime**
+  - Time since last system boot
+
+- **Auto-refresh**: Performance metrics update automatically via WebSocket connection
+
+### 🏗️ Architecture
+
+The performance monitoring is powered by the same Flask API service used for Docker statistics:
+
+```
+Browser ←→ WebSocket ←→ Statistics API (Python) ←→ psutil ←→ System Metrics
+```
+
+**Components:**
+
+1. **Backend** - Python Flask application with SocketIO
+   - `_collect_server_performances()` - Core function that collects all metrics
+   - `get_server_performances()` - Used by WebSocket emitter
+   - `performances()` - REST endpoint for on-demand queries
+   - Uses `psutil` library for system metrics
+
+2. **Frontend Integration** - Real-time WebSocket connection
+   - WebSocket connection to `/performance` namespace
+   - Automatic reconnection on connection loss
+   - Retro-terminal themed UI matching the landing page style
+
+3. **Security**
+   - Protected by Authelia SSO (same as other services)
+   - Read-only access to system metrics
+   - HTTPS-only access with Let's Encrypt certificates
+
+### 🔌 API Endpoints
+
+The performance API exposes:
+
+- `GET /api/server/performances` - Returns server performance metrics (on-demand)
+- `WebSocket /performance` - Real-time performance updates (every 2 seconds)
+
+**Response Format:**
+
+```json
+{
+  "cpuPercent": 23.5,
+  "memoryPercent": 45.2,
+  "memory": {
+    "total": 16.0,
+    "available": 8.76,
+    "used": 7.24,
+    "percent": 45.2
+  },
+  "swap": {
+    "total": 8.0,
+    "used": 0.5,
+    "percent": 6.25
+  },
+  "diskPercent": 67.8,
+  "network": {
+    "bytesSent": 1234567890,
+    "bytesRecv": 9876543210,
+    "packetsSent": 123456,
+    "packetsRecv": 654321,
+    "errorsIn": 0,
+    "errorsOut": 0
+  },
+  "uptime": "5d 12h"
+}
+```
+
+### 🚀 Deployment
+
+The performance monitoring is automatically deployed with the statistics service:
+
+```bash
+# Generate configurations (includes performance monitoring)
+./scaffold.sh
+
+# Start all services (includes statistics API with performance monitoring)
+./startup.sh
+```
+
+The service will be available at:
+- REST API: `https://yourdomain.com/api/server/performances` (requires authentication)
+- WebSocket: `wss://yourdomain.com/performance` (automatic connection from landing page)
+- Dashboard: Integrated into landing page at `https://yourdomain.com`
+
+### 🔧 Troubleshooting
+
+#### ⚠️ Performance Metrics Not Updating
+
+**Possible Causes:**
+- Statistics API container not running
+- WebSocket connection failed
+- Network connectivity issues
+
+**Solutions:**
+
+1. Check if the container is running:
+   ```bash
+   docker ps | grep docker-stats-api
+   ```
+
+2. Check container logs for errors:
+   ```bash
+   docker logs docker-stats-api
+   ```
+
+3. Verify WebSocket connection in browser console (F12):
+   - Look for WebSocket connection messages
+   - Check for connection errors
+
+4. Restart the statistics service:
+   ```bash
+   docker compose -f stats-api/docker-compose.yaml restart
+   ```
+
+#### 🔄 Metrics Show Stale Data
+
+**Solutions:**
+
+1. Check browser console for WebSocket disconnection messages
+2. Refresh the page to re-establish WebSocket connection
+3. Verify the background emitter is running (check container logs)
+
+#### 📊 High Resource Usage from Monitoring
+
+The performance monitoring is designed to be lightweight:
+- Metrics collected every 2 seconds
+- Minimal CPU overhead from `psutil`
+- WebSocket connection uses minimal bandwidth
+
+If you experience issues, you can adjust the update interval in `docker-stats-api.py`:
+
+```python
+# In background_performance_emitter()
+time.sleep(2)  # Change to desired interval in seconds
+```
 
 ---
 

@@ -2,7 +2,12 @@
 
 set -e
 
-BACKUP_DIR="$HOME/bkp"
+if [ -n "$SUDO_USER" ]; then
+    BACKUP_DIR="$(eval echo ~$SUDO_USER)/bkp"
+else
+    BACKUP_DIR="$HOME/bkp"
+fi
+
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_NAME="homelab_backup_${TIMESTAMP}.tar.gz"
 BACKUP_PATH="${BACKUP_DIR}/${BACKUP_NAME}"

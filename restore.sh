@@ -2,7 +2,12 @@
 
 set -e
 
-BACKUP_DIR="$HOME/bkp"
+if [ -n "$SUDO_USER" ]; then
+    BACKUP_DIR="$(eval echo ~$SUDO_USER)/bkp"
+else
+    BACKUP_DIR="$HOME/bkp"
+fi
+
 TEMP_DIR=$(mktemp -d)
 
 echo ""

@@ -127,7 +127,7 @@
     }
 
     function controlContainer(containerId, action) {
-        fetch(`/api/docker/container/${containerId}/${action}`, {
+        fetch(`/api/docker/container/$${{containerId}}/$${{action}}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -161,18 +161,18 @@
         document.getElementById('cpu-percent').textContent = data.cpuPercent.toFixed(1) + '%';
         document.getElementById('memory-percent').textContent = data.memoryPercent.toFixed(1) + '%';
         document.getElementById('memory-detail').textContent = 
-            `${data.memory.used} / ${data.memory.total} GB`;
+            `$${{data.memory.used}} / $${{data.memory.total}} GB`;
         document.getElementById('disk-percent').textContent = data.diskPercent.toFixed(1) + '%';
         
         const totalTraffic = data.network.bytesSent + data.network.bytesRecv;
         document.getElementById('network-traffic').textContent = formatBytes(totalTraffic);
         document.getElementById('network-detail').textContent = 
-            `↑ ${formatBytes(data.network.bytesSent)} / ↓ ${formatBytes(data.network.bytesRecv)}`;
+            `↑ $${{formatBytes(data.network.bytesSent)}} / ↓ $${{formatBytes(data.network.bytesRecv)}}`;
     }
 
     function initPerformanceWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const socket = io(`${protocol}//${window.location.host}/performance`, {
+        const socket = io(`$${{protocol}}//$${{window.location.host}}/performance`, {
             transports: ['websocket', 'polling']
         });
 
@@ -207,18 +207,18 @@
                 if (data.containers && data.containers.length > 0) {
                     containerDetails.innerHTML = data.containers.map(container => `
                     <div class="container-item">
-                        <div class="container-status ${container.state.toLowerCase()}"></div>
+                        <div class="container-status $${{container.state.toLowerCase()}}"></div>
                         <div class="container-info">
-                            <div class="container-name">${container.name}</div>
+                            <div class="container-name">$${{container.name}}</div>
                             <div class="container-meta">
-                                <span class="container-image">${container.image}</span>
-                                <span class="container-uptime">${container.uptime || 'N/A'}</span>
+                                <span class="container-image">$${{container.image}}</span>
+                                <span class="container-uptime">$${{container.uptime || 'N/A'}}</span>
                             </div>
                         </div>
                         <div class="container-actions">
-                            <button onclick="controlContainer('${container.id}', 'start')" class="action-btn start-btn" title="Start">▶</button>
-                            <button onclick="controlContainer('${container.id}', 'stop')" class="action-btn stop-btn" title="Stop">■</button>
-                            <button onclick="controlContainer('${container.id}', 'restart')" class="action-btn restart-btn" title="Restart">↻</button>
+                            <button onclick="controlContainer('$${{container.id}}', 'start')" class="action-btn start-btn" title="Start">▶</button>
+                            <button onclick="controlContainer('$${{container.id}}', 'stop')" class="action-btn stop-btn" title="Stop">■</button>
+                            <button onclick="controlContainer('$${{container.id}}', 'restart')" class="action-btn restart-btn" title="Restart">↻</button>
                         </div>
                     </div>
                 `).join('');

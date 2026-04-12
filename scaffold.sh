@@ -21,6 +21,12 @@ generate_from_template() {
         # Use sed for users_database to preserve password hashes with $ characters
         sed -e "s/\${EMAIL}/$EMAIL/g" \
             "$template_file" > "$output_file"
+    elif [[ "$template_file" == *.html.template ]]; then
+        # Use sed for HTML files to preserve JavaScript template literals
+        # Replace $${{ with ${ and }} with } to protect JavaScript variables
+        sed -e "s/\${DOMAIN}/$DOMAIN/g" \
+            -e 's/\$\${{\([^}]*\)}}/\${\1}/g' \
+            "$template_file" > "$output_file"
     else
         envsubst < "$template_file" > "$output_file"
     fi

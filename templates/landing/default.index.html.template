@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homelab</title>
     <link rel="stylesheet" href="/homelab-theme.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -156,24 +157,41 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    function fetchServerPerformances() {
-        fetch('/api/server/performances')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('cpu-percent').textContent = data.cpuPercent.toFixed(1) + '%';
-                document.getElementById('memory-percent').textContent = data.memoryPercent.toFixed(1) + '%';
-                document.getElementById('memory-detail').textContent = 
-                    `${data.memory.used} / ${data.memory.total} GB`;
-                document.getElementById('disk-percent').textContent = data.diskPercent.toFixed(1) + '%';
-                
-                const totalTraffic = data.network.bytesSent + data.network.bytesRecv;
-                document.getElementById('network-traffic').textContent = formatBytes(totalTraffic);
-                document.getElementById('network-detail').textContent = 
-                    `↑ ${formatBytes(data.network.bytesSent)} / ↓ ${formatBytes(data.network.bytesRecv)}`;
-            })
-            .catch(error => {
-                console.error('Error fetching server performances:', error);
-            });
+    function updateServerPerformances(data) {
+        document.getElementById('cpu-percent').textContent = data.cpuPercent.toFixed(1) + '%';
+        document.getElementById('memory-percent').textContent = data.memoryPercent.toFixed(1) + '%';
+        document.getElementById('memory-detail').textContent = 
+            `${data.memory.used} / ${data.memory.total} GB`;
+        document.getElementById('disk-percent').textContent = data.diskPercent.toFixed(1) + '%';
+        
+        const totalTraffic = data.network.bytesSent + data.network.bytesRecv;
+        document.getElementById('network-traffic').textContent = formatBytes(totalTraffic);
+        document.getElementById('network-detail').textContent = 
+            `↑ ${formatBytes(data.network.bytesSent)} / ↓ ${formatBytes(data.network.bytesRecv)}`;
+    }
+
+    function initPerformanceWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const socket = io(`${protocol}//${window.location.host}/performance`, {
+            transports: ['websocket', 'polling']
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to performance stream');
+        });
+
+        // the method server_performance is defined in the docker-stats-api.py file
+        socket.on('server_performance', (data) => {
+            updateServerPerformances(data);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from performance stream');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('WebSocket connection error:', error);
+        });
     }
 
     function fetchDockerStats() {
@@ -214,13 +232,12 @@
             });
     }
 
-    // Fetch stats on load and refresh every 10 seconds
-    fetchServerPerformances();
+    // Initialize WebSocket for real-time performance updates
+    initPerformanceWebSocket();
+    
+    // Fetch Docker stats on load and refresh every 10 seconds
     fetchDockerStats();
-    setInterval(() => {
-        fetchServerPerformances();
-        fetchDockerStats();
-    }, 10000);
+    setInterval(fetchDockerStats, 10000);
 </script>
 </body>
 </html>

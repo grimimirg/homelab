@@ -6,9 +6,13 @@ import traceback
 from datetime import datetime
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit
+from threading import Thread
+import time
 
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -180,13 +184,12 @@ def restart_container(container_id):
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/server/performances', methods=['GET'])
-def performances():
+def _collect_server_performances():
     memory = psutil.virtual_memory()
     swap = psutil.swap_memory()
     net_io = psutil.net_io_counters()
 
-    return jsonify({
+    return {
         'cpuPercent': psutil.cpu_percent(),
         'memoryPercent': memory.percent,
         'memory': {
@@ -210,7 +213,12 @@ def performances():
             'errorsOut': net_io.errout
         },
         'uptime': format_uptime(datetime.fromtimestamp(psutil.boot_time()).isoformat())
-    })
+    }
+
+
+@app.route('/api/server/performances', methods=['GET'])
+def performances():
+    return jsonify(_collect_server_performances())
 
 
 @app.route('/health', methods=['GET'])
@@ -218,5 +226,29 @@ def health():
     return jsonify({'status': 'healthy'}), 200
 
 
+def get_server_performances():
+    return _collect_server_performances()
+
+def background_performance_emitter():
+    while True:
+        try:
+            data = get_server_performances()
+            socketio.emit('server_performance', data, namespace='/performance')
+            time.sleep(2)
+        except Exception as e:
+            logger.error(f"Error emitting performance data: {e}")
+            time.sleep(2)
+
+@socketio.on('connect', namespace='/performance')
+def handle_connect():
+    logger.info('Client connected to performance stream')
+    emit('server_performance', get_server_performances())
+
+@socketio.on('disconnect', namespace='/performance')
+def handle_disconnect():
+    logger.info('Client disconnected from performance stream')
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    background_thread = Thread(target=background_performance_emitter, daemon=True)
+    background_thread.start()
+    socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)

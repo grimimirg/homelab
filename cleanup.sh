@@ -8,7 +8,7 @@ echo "Starting cleanup for ${DOMAIN}..."
 echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo ""
 
-echo "WARNING: This will destroy ALL containers, networks, and data directories (db/postgres, synapse data, etc.)."
+echo "WARNING: This will destroy ALL containers, networks, Docker images, and data directories (db/postgres, synapse data, etc.)."
 echo "Are you sure you want to proceed? (y/N)"
 read -r response
 echo ""
@@ -26,6 +26,19 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     docker compose -f gitea/docker-compose.yaml down 2>/dev/null
     docker compose -f navidrome/docker-compose.yaml down 2>/dev/null
     docker compose -f paperless/docker-compose.yaml down 2>/dev/null
+
+    echo "==============================="
+    echo "Removing Docker images..."
+    docker compose -f db/docker-compose.yaml down --rmi all 2>/dev/null
+    docker compose -f nginx/docker-compose.yaml down --rmi all 2>/dev/null
+    docker compose -f authelia/docker-compose.yaml down --rmi all 2>/dev/null
+    docker compose -f stats-api/docker-compose.yaml down --rmi all 2>/dev/null
+    docker compose -f n8n/docker-compose.yaml down --rmi all 2>/dev/null
+    docker compose -f synapse/docker-compose.yaml down --rmi all 2>/dev/null
+    docker compose -f gitea/docker-compose.yaml down --rmi all 2>/dev/null
+    docker compose -f navidrome/docker-compose.yaml down --rmi all 2>/dev/null
+    docker compose -f paperless/docker-compose.yaml down --rmi all 2>/dev/null
+    echo ""
 
     echo "==============================="
     echo "Removing network 'homelab_net'..."

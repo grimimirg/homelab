@@ -59,7 +59,7 @@ if sudo test -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem"; then
     # Change ownership to current user
     sudo chown $USER:$USER ssl/*
     
-    echo "✅ SSL certificates copied to ssl/ directory"
+    echo "SSL certificates copied to ssl/ directory"
     
     # Verify certificates
     ls -la ssl/

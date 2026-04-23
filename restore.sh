@@ -18,7 +18,7 @@ TEMP_DIR=$(mktemp -d)
 
 echo ""
 echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
-echo "Homelab Restore Script"
+echo "Homelab Backup Restore Script"
 echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"
 echo ""
 

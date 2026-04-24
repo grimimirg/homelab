@@ -1,6 +1,6 @@
 <div align="center">
 
-# Homelab Infrastructure
+<img src="homelab-logo.jpeg" alt="Homelab Logo" width="40%">
 
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
@@ -9,9 +9,24 @@
 
 </div>
 
-This project provides a modular, containerized approach to managing your home services
-using Docker and Nginx as a reverse proxy. The infrastructure is defined as code (IaC), allowing for rapid setup,
-deployment, and cleanup.
+## What is a Homelab?
+
+A **homelab** is a personal server environment set up at home for learning, experimentation, and self-hosting services. It allows you to run your own applications, manage your data privately, and gain hands-on experience with server administration, networking, and DevOps practices.
+
+## About This Project
+
+This project provides a **complete, production-ready homelab infrastructure** built with modern DevOps principles:
+
+- **🐳 Containerized Services**: All applications run in Docker containers, ensuring isolation, portability, and easy management
+- **🔄 Reverse Proxy Architecture**: <span style="color: #009639;">**Nginx**</span> acts as a central gateway, routing traffic to different services based on subdomain
+- **🔐 Centralized Authentication**: <span style="color: #DC382D;">**Authelia**</span> provides Single Sign-On (SSO) with two-factor authentication for all services
+- **📦 Infrastructure as Code (IaC)**: The entire infrastructure is defined in configuration files and scripts, meaning you can:
+  - Deploy the complete stack with a single command
+  - Version control your infrastructure
+  - Reproduce the same environment on any machine
+  - Easily backup, restore, and migrate your setup
+
+Whether you're a DevOps enthusiast, a privacy-conscious user wanting to self-host your services, or someone learning about server infrastructure, this homelab provides a solid foundation to build upon.
 
 > **🚧 WORK IN PROGRESS 🚧**
 >
@@ -59,7 +74,7 @@ set of orchestration scripts.
   <span style="color: #46A046;">**paperless**</span>, <span style="color: #4B8BBE;">**navidrome**</span>.
 * **Network:** Shared bridge network.
 
-> ⚠️ **WARNING**: You are free to add or remove services from this setup. However, modifications to the service stack
+> 📝 **NOTE**: You are free to add or remove services from this setup. However, modifications to the service stack
 > are not covered in this documentation. Proceed only if you understand the infrastructure and dependencies.
 
 ### Directory Structure
@@ -332,45 +347,40 @@ DOMAIN=myhomelab.ddns.net
 
 ## Included Services
 
-### 1. **Authelia** - SSO Authentication
+### 1. <span style="color: #DC382D;">**Authelia**</span> - SSO Authentication
 
 - **URL**: `https://auth.YOURDOMAIN`
 - **Description**: Centralized authentication system with 2FA
-- **Database**: Dedicated PostgreSQL
+- **Database**: Dedicated <span style="color: #316192;">**PostgreSQL**</span>
 
-### 2. **Gitea** - Git Repository Manager
+### 2. <span style="color: #609926;">**Gitea**</span> - Git Repository Manager
 
 - **URL**: `https://git.YOURDOMAIN`
 - **Description**: Self-hosted Git platform (GitHub alternative)
-- **Database**: Dedicated PostgreSQL
+- **Database**: Dedicated <span style="color: #316192;">**PostgreSQL**</span>
 
-### 3. **n8n** - Workflow Automation
+### 3. <span style="color: #EA4B71;">**n8n**</span> - Workflow Automation
 
 - **URL**: `https://n8n.YOURDOMAIN`
 - **Description**: Workflow automation (Zapier alternative)
-- **Database**: Dedicated PostgreSQL
+- **Database**: Dedicated <span style="color: #316192;">**PostgreSQL**</span>
 
-### 4. **Synapse** - Matrix Homeserver
+### 4. <span style="color: #609926;">**Synapse**</span> - Matrix Homeserver
 
 - **URL**: `https://synapse.YOURDOMAIN`
 - **Description**: Federated Matrix messaging server
-- **Database**: PostgreSQL with 'C' collation
+- **Database**: <span style="color: #316192;">**PostgreSQL**</span> with 'C' collation
 
-### 5. **Navidrome** - Music Server
+### 5. <span style="color: #4B8BBE;">**Navidrome**</span> - Music Server
 
 - **URL**: `https://music.YOURDOMAIN`
 - **Description**: Music streaming server (Subsonic compatible)
 
-### 6. **Paperless-ngx** - Document Management
+### 6. <span style="color: #46A046;">**Paperless-ngx**</span> - Document Management
 
 - **URL**: `https://docs.YOURDOMAIN`
 - **Description**: Document management system with OCR
-- **Database**: Dedicated PostgreSQL
-
-### 7. **System Metrics API**
-
-- **Description**: API for Docker and system metrics monitoring
-- **Port**: Internal (not publicly exposed)
+- **Database**: Dedicated <span style="color: #316192;">**PostgreSQL**</span>
 
 ---
 
@@ -389,7 +399,7 @@ Generates all configuration files from templates and prepares directories.
 - Validates all required environment variables
 - Creates directory structure with correct permissions
 - Generates `docker-compose.yaml` files for each service
-- Generates NGINX configurations
+- Generates <span style="color: #009639;">**NGINX**</span> configurations
 - Sets executable permissions on scripts
 
 ### `setup-ssl.sh` - SSL Certificates
@@ -428,12 +438,12 @@ Starts the entire infrastructure in the correct order.
 **Startup sequence:**
 
 1. Creates shared Docker network
-2. Starts PostgreSQL
-3. Waits for PostgreSQL to be ready
+2. Starts <span style="color: #316192;">**PostgreSQL**</span>
+3. Waits for <span style="color: #316192;">**PostgreSQL**</span> to be ready
 4. Provisions databases (`init-db.sh`)
-5. Starts services in order: n8n, Synapse, Gitea, Navidrome, Paperless, Authelia
+5. Starts services in order: <span style="color: #EA4B71;">**n8n**</span>, <span style="color: #609926;">**Synapse**</span>, <span style="color: #609926;">**Gitea**</span>, <span style="color: #4B8BBE;">**Navidrome**</span>, <span style="color: #46A046;">**Paperless**</span>, <span style="color: #DC382D;">**Authelia**</span>
 6. Starts System Metrics API
-7. Starts NGINX (reverse proxy)
+7. Starts <span style="color: #009639;">**NGINX**</span> (reverse proxy)
 
 ### `startup.sh` - Start Services
 
@@ -461,19 +471,19 @@ Restarts a specific service via interactive menu.
 
 **Available services:**
 
-1. db (PostgreSQL)
-2. authelia
+1. db (<span style="color: #316192;">**PostgreSQL**</span>)
+2. <span style="color: #DC382D;">**authelia**</span>
 3. stats-api
-4. nginx
-5. n8n
-6. synapse
-7. gitea
-8. navidrome
-9. paperless
+4. <span style="color: #009639;">**nginx**</span>
+5. <span style="color: #EA4B71;">**n8n**</span>
+6. <span style="color: #609926;">**synapse**</span>
+7. <span style="color: #609926;">**gitea**</span>
+8. <span style="color: #4B8BBE;">**navidrome**</span>
+9. <span style="color: #46A046;">**paperless**</span>
 
 ### `init-db.sh` - Database Provisioning
 
-Creates PostgreSQL databases and users for all services.
+Creates <span style="color: #316192;">**PostgreSQL**</span> databases and users for all services.
 
 ```bash
 ./init-db.sh
@@ -481,14 +491,14 @@ Creates PostgreSQL databases and users for all services.
 
 **What it does:**
 
-- Creates PostgreSQL users for each service
+- Creates <span style="color: #316192;">**PostgreSQL**</span> users for each service
 - Creates dedicated databases
 - Assigns appropriate privileges
-- Applies 'C' collation for Synapse (specific requirement)
+- Applies 'C' collation for <span style="color: #609926;">**Synapse**</span> (specific requirement)
 
 ### `change-authelia-password.sh` - Password Change
 
-Changes the password for an Authelia user.
+Changes the password for an <span style="color: #DC382D;">**Authelia**</span> user.
 
 ```bash
 ./change-authelia-password.sh
@@ -501,7 +511,7 @@ Changes the password for an Authelia user.
 3. Confirms password
 4. Generates Argon2 hash
 5. Updates user database
-6. Restarts Authelia
+6. Restarts <span style="color: #DC382D;">**Authelia**</span>
 
 ### `cleanup.sh` - Complete Cleanup
 
@@ -535,8 +545,8 @@ Creates a complete infrastructure backup.
 **What gets saved:**
 
 - All `data/` directories
-- PostgreSQL database (`db/`)
-- NGINX configurations (`nginx/`)
+- <span style="color: #316192;">**PostgreSQL**</span> database (`db/`)
+- <span style="color: #009639;">**NGINX**</span> configurations (`nginx/`)
 - Landing page (`landing/`)
 - Configuration files (`.env`, `index.html`)
 
@@ -587,7 +597,7 @@ docker compose -f <service>/docker-compose.yaml logs -f
 docker compose -f authelia/docker-compose.yaml logs -f
 ```
 
-### PostgreSQL won't connect
+### <span style="color: #316192;">**PostgreSQL**</span> won't connect
 
 ```bash
 # Verify PostgreSQL is running
@@ -624,7 +634,7 @@ sudo chown -R $(id -u):$(id -g) data/<service>
 chmod -R 755 data/<service>
 ```
 
-### Forgotten Authelia password reset
+### Forgotten <span style="color: #DC382D;">**Authelia**</span> password reset
 
 ```bash
 # Use the dedicated script
@@ -735,19 +745,19 @@ To add a new service:
 1. Create a template in `templates/<service>/`
 2. Add generation in `scaffold.sh`
 3. Add the service in `build.sh`, `startup.sh`, `shutdown.sh`
-4. Create NGINX configuration in `templates/nginx/`
+4. Create <span style="color: #009639;">**NGINX**</span> configuration in `templates/nginx/`
 
 ### Service Access
 
 After deployment, services are accessible via:
 
 - Landing page: `https://YOURDOMAIN`
-- Authelia SSO: `https://auth.YOURDOMAIN`
-- Gitea: `https://git.YOURDOMAIN`
-- n8n: `https://n8n.YOURDOMAIN`
-- Synapse: `https://synapse.YOURDOMAIN`
-- Navidrome: `https://music.YOURDOMAIN`
-- Paperless: `https://docs.YOURDOMAIN`
+- <span style="color: #DC382D;">**Authelia**</span> SSO: `https://auth.YOURDOMAIN`
+- <span style="color: #609926;">**Gitea**</span>: `https://git.YOURDOMAIN`
+- <span style="color: #EA4B71;">**n8n**</span>: `https://n8n.YOURDOMAIN`
+- <span style="color: #609926;">**Synapse**</span>: `https://synapse.YOURDOMAIN`
+- <span style="color: #4B8BBE;">**Navidrome**</span>: `https://music.YOURDOMAIN`
+- <span style="color: #46A046;">**Paperless**</span>: `https://docs.YOURDOMAIN`
 
 ---
 
@@ -759,7 +769,7 @@ After editing, regenerate and reload:
 
 ```bash
 ./scaffold.sh
-docker exec nginx nginx -s reload
+docker exec nginx -s reload
 ```
 
 ---

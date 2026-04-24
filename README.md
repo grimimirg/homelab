@@ -28,9 +28,9 @@ This project provides a **complete, production-ready homelab infrastructure** bu
 
 Whether you're a DevOps enthusiast, a privacy-conscious user wanting to self-host your services, or someone learning about server infrastructure, this homelab provides a solid foundation to build upon.
 
-> **🚧 WORK IN PROGRESS 🚧**
+> **🚧 DISCLAIMER 🚧**
 >
-> This project is currently under active development. You may experience malfunctions, bugs, or significant changes to
+> This project is under development. You may experience malfunctions, bugs, or significant changes to
 > the structure and functionality.
 >
 > **For any issues or assistance, please open an issue.**

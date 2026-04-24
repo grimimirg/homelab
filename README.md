@@ -22,8 +22,17 @@ deployment, and cleanup.
 
 ## Table of Contents
 
-- [Quick Setup](#quick-setup)
 - [Architecture](#architecture)
+  - [Directory Structure](#directory-structure)
+  - [Required Variables](#required-variables)
+  - [Secret Generation](#secret-generation)
+- [Quick Setup](#quick-setup)
+  - [Prerequisites](#prerequisites)
+  - [Setup Steps](#setup-steps)
+- [DNS Configuration with No-IP](#dns-configuration-with-no-ip)
+  - [Why No-IP?](#why-no-ip)
+  - [Setting Up No-IP](#setting-up-no-ip)
+  - [Important Notes](#important-notes)
 - [Included Services](#included-services)
 - [Management Scripts](#management-scripts)
 - [Backup and Restore](#backup-and-restore)
@@ -34,17 +43,6 @@ deployment, and cleanup.
 - [Customization](#customization)
 - [Support](#support)
 - [License](#license)
-
----
-
-## Quick Setup
-
-### Prerequisites
-
-- Docker and Docker Compose installed
-- Domain configured with DNS pointing to your server
-- Sudo access for SSL configuration
-- Ports 80 and 443 available
 
 ---
 
@@ -126,6 +124,210 @@ set of orchestration scripts.
         └── synapse.yaml.template            # Docker Compose template for synapse
 ```
 
+### Required Variables
+
+| Variable                           | Description                                                                                 |
+|------------------------------------|------------------------------------------------------------------------------------------|
+| DOMAIN                             | The primary domain name used for SSL certificate issuance and public access.                |
+| EMAIL                              | Contact email address used by Let's Encrypt for SSL certificate notifications.              |
+| SHARED_NETWORK                     | The shared network used by containers to communicate with each other.                       |
+| TZ                                 | Timezone for services (e.g., Europe/Rome, America/New_York, Asia/Tokyo).                    |
+| POSTGRES_USER                      | The administrative username for PostgreSQL, used by the init-db.sh script for provisioning. |
+| POSTGRES_PASSWORD                  | The master password for the PostgreSQL administrator account.                               |
+| GITEA_DB_NAME                      | Dedicated database name for the Gitea service.                                              |
+| GITEA_DB_USER                      | Dedicated database username for the Gitea service.                                          |
+| GITEA_DB_PASS                      | Dedicated database password for the Gitea service.                                          |
+| PAPERLESS_DB_NAME                  | Dedicated database name for the Paperless-ngx service.                                      |
+| PAPERLESS_DB_USER                  | Dedicated database username for the Paperless-ngx service.                                  |
+| PAPERLESS_DB_PASS                  | Dedicated database password for the Paperless-ngx service.                                  |
+| PAPERLESS_SECRET_KEY               | A secure, random string used for session encryption in Paperless-ngx.                       |
+| SYNAPSE_DB_NAME                    | Dedicated database name for the Synapse service.                                            |
+| SYNAPSE_DB_USER                    | Dedicated database username for the Synapse service.                                        |
+| SYNAPSE_DB_PASS                    | Dedicated database password for the Synapse service.                                        |
+| SYNAPSE_REGISTRATION_SHARED_SECRET | A security key required to authorize user registrations on your Synapse server.             |
+| NAVIDROME_MUSIC_FOLDER_PATH        | The absolute path on your host server where your music library is stored.                   |
+| AUTHELIA_DB_NAME                   | Dedicated database name for the Authelia SSO service.                                       |
+| AUTHELIA_DB_USER                   | Dedicated database username for the Authelia service.                                       |
+| AUTHELIA_DB_PASS                   | Dedicated database password for the Authelia service.                                       |
+| AUTHELIA_JWT_SECRET                | Secret key for JWT token generation (auto-generated in .env).                               |
+| AUTHELIA_SESSION_SECRET            | Secret key for session encryption (auto-generated in .env).                                 |
+| AUTHELIA_STORAGE_ENCRYPTION_KEY    | Encryption key for sensitive data storage (auto-generated in .env).                         |
+
+### Secret Generation
+
+To generate secure secret keys:
+
+```bash
+# Generate a random 32-character string
+openssl rand -base64 32
+
+# Or
+cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
+```
+
+---
+
+## Quick Setup
+
+### Prerequisites
+
+- **Docker and Docker Compose installed**
+  
+  Install Docker:
+  ```bash
+  # Ubuntu/Debian
+  curl -fsSL https://get.docker.com -o get-docker.sh
+  sudo sh get-docker.sh
+  sudo usermod -aG docker $USER
+  
+  # Log out and log back in for group changes to take effect
+  ```
+  
+  Install Docker Compose:
+  ```bash
+  # Download the latest version (check https://github.com/docker/compose/releases for the latest version)
+  sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  
+  # Apply executable permissions
+  sudo chmod +x /usr/local/bin/docker-compose
+  
+  # Verify installation
+  docker-compose --version
+  ```
+
+- **Domain configured with DNS pointing to your server** (see [DNS Configuration with No-IP](#dns-configuration-with-no-ip))
+- **Sudo access** for SSL configuration
+- **Ports 80 and 443 available**
+
+### Setup Steps
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd homelab
+
+# 2. Configure environment variables
+cp .env.template .env
+nano .env  # Fill in all required fields
+
+# 3. Generate SSL certificates
+./setup-ssl.sh
+
+# 4. Generate configuration and prepare directories
+./scaffold.sh
+
+# 5. Start the infrastructure
+./build.sh
+```
+
+After these steps, the infrastructure will be accessible at `https://auth.YOURDOMAIN`.
+
+**Default credentials:**
+
+- Username: `admin`
+- Password: `admin`
+
+⚠️ **IMPORTANT**: Change the default password immediately by running `./change-authelia-password.sh`
+
+---
+
+## DNS Configuration with No-IP
+
+This homelab infrastructure was designed and tested using **No-IP**, a free dynamic DNS service that provides basic functionality at no cost. No-IP is ideal for home servers with dynamic IP addresses, as it automatically updates your DNS records when your public IP changes.
+
+### Why No-IP?
+
+- **Free tier available**: Offers basic DDNS functionality without cost
+- **Easy to use**: Simple setup and configuration
+- **Automatic updates**: Keeps your domain pointing to your current IP address
+- **Reliable**: Well-established service with good uptime
+
+### Setting Up No-IP
+
+#### 1. Create a No-IP Account
+
+1. Visit [https://www.noip.com](https://www.noip.com)
+2. Click on **Sign Up** and create a free account
+3. Verify your email address
+
+#### 2. Create a Hostname
+
+1. Log in to your No-IP account
+2. Go to **Dynamic DNS** → **No-IP Hostnames**
+3. Click **Create Hostname**
+4. Choose your desired hostname (e.g., `myhomelab.ddns.net`)
+5. Select a domain from the free options (e.g., `ddns.net`, `hopto.org`, etc.)
+6. The IP address should auto-populate with your current public IP
+7. Click **Create Hostname**
+
+#### 3. Install No-IP Dynamic Update Client (DUC)
+
+To keep your DNS records updated automatically:
+
+```bash
+# Download and install the No-IP DUC
+cd /usr/local/src
+sudo wget https://www.noip.com/client/linux/noip-duc-linux.tar.gz
+sudo tar xzf noip-duc-linux.tar.gz
+cd noip-2.1.9-1
+sudo make
+sudo make install
+
+# Configure the client (enter your No-IP credentials when prompted)
+sudo /usr/local/bin/noip2 -C
+
+# Start the client
+sudo /usr/local/bin/noip2
+```
+
+#### 4. Configure the Client to Start on Boot
+
+Create a systemd service:
+
+```bash
+sudo nano /etc/systemd/system/noip2.service
+```
+
+Add the following content:
+
+```ini
+[Unit]
+Description=No-IP Dynamic DNS Update Client
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/noip2
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable noip2
+sudo systemctl start noip2
+sudo systemctl status noip2
+```
+
+#### 5. Update Your .env File
+
+Once you have your No-IP hostname, update your `.env` file:
+
+```bash
+DOMAIN=myhomelab.ddns.net
+```
+
+### Important Notes
+
+- **Free tier limitations**: No-IP free accounts require you to confirm your hostname every 30 days via email
+- **Wildcard subdomains**: The free tier does not support wildcard DNS, but you can create multiple hostnames for different subdomains (e.g., `auth.myhomelab.ddns.net`, `git.myhomelab.ddns.net`)
+- **SSL certificates**: Let's Encrypt works perfectly with No-IP domains
+- **Alternative services**: While this homelab was built with No-IP, you can use other DDNS services like DuckDNS, Dynu, or purchase a custom domain
+
 ---
 
 ## Included Services
@@ -169,79 +371,6 @@ set of orchestration scripts.
 
 - **Description**: API for Docker and system metrics monitoring
 - **Port**: Internal (not publicly exposed)
-
----
-
-### Quick Setup (5 steps)
-
-```bash
-# 1. Clone the repository
-git clone <repository-url>
-cd homelab
-
-# 2. Configure environment variables
-cp .env.template .env
-nano .env  # Fill in all required fields
-
-# 3. Generate SSL certificates
-./setup-ssl.sh
-
-# 4. Generate configuration and prepare directories
-./scaffold.sh
-
-# 5. Start the infrastructure
-./build.sh
-```
-
-After these steps, the infrastructure will be accessible at `https://auth.YOURDOMAIN`.
-
-**Default credentials:**
-
-- Username: `admin`
-- Password: `admin`
-
-⚠️ **IMPORTANT**: Change the default password immediately by running `./change-authelia-password.sh`
-
-Required variables table:
-
-| Variable                           | Description                                                                                 |
-|------------------------------------|---------------------------------------------------------------------------------------------|
-| DOMAIN                             | The primary domain name used for SSL certificate issuance and public access.                |
-| EMAIL                              | Contact email address used by Let's Encrypt for SSL certificate notifications.              |
-| SHARED_NETWORK                     | The shared network used by containers to communicate with each other.                       |
-| TZ                                 | Timezone for services (e.g., Europe/Rome, America/New_York, Asia/Tokyo).                    |
-| POSTGRES_USER                      | The administrative username for PostgreSQL, used by the init-db.sh script for provisioning. |
-| POSTGRES_PASSWORD                  | The master password for the PostgreSQL administrator account.                               |
-| GITEA_DB_NAME                      | Dedicated database name for the Gitea service.                                              |
-| GITEA_DB_USER                      | Dedicated database username for the Gitea service.                                          |
-| GITEA_DB_PASS                      | Dedicated database password for the Gitea service.                                          |
-| PAPERLESS_DB_NAME                  | Dedicated database name for the Paperless-ngx service.                                      |
-| PAPERLESS_DB_USER                  | Dedicated database username for the Paperless-ngx service.                                  |
-| PAPERLESS_DB_PASS                  | Dedicated database password for the Paperless-ngx service.                                  |
-| PAPERLESS_SECRET_KEY               | A secure, random string used for session encryption in Paperless-ngx.                       |
-| SYNAPSE_DB_NAME                    | Dedicated database name for the Synapse service.                                            |
-| SYNAPSE_DB_USER                    | Dedicated database username for the Synapse service.                                        |
-| SYNAPSE_DB_PASS                    | Dedicated database password for the Synapse service.                                        |
-| SYNAPSE_REGISTRATION_SHARED_SECRET | A security key required to authorize user registrations on your Synapse server.             |
-| NAVIDROME_MUSIC_FOLDER_PATH        | The absolute path on your host server where your music library is stored.                   |
-| AUTHELIA_DB_NAME                   | Dedicated database name for the Authelia SSO service.                                       |
-| AUTHELIA_DB_USER                   | Dedicated database username for the Authelia service.                                       |
-| AUTHELIA_DB_PASS                   | Dedicated database password for the Authelia service.                                       |
-| AUTHELIA_JWT_SECRET                | Secret key for JWT token generation (auto-generated in .env).                               |
-| AUTHELIA_SESSION_SECRET            | Secret key for session encryption (auto-generated in .env).                                 |
-| AUTHELIA_STORAGE_ENCRYPTION_KEY    | Encryption key for sensitive data storage (auto-generated in .env).                         |
-
-### Secret Generation
-
-To generate secure secret keys:
-
-```bash
-# Generate a random 32-character string
-openssl rand -base64 32
-
-# Or
-cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
-```
 
 ---
 

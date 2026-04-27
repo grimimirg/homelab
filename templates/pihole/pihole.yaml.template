@@ -1,0 +1,25 @@
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    restart: always
+    hostname: pihole
+    environment:
+      - TZ=${TZ}
+      - WEBPASSWORD=${PIHOLE_PASSWORD}
+      - FTLCONF_LOCAL_IPV4=${PIHOLE_SERVER_IP}
+    ports:
+      - "${PIHOLE_SERVER_IP}:53:53/tcp"
+      - "${PIHOLE_SERVER_IP}:53:53/udp"
+      - "127.0.0.1:8053:80/tcp"
+    volumes:
+      - ../data/pihole/etc-pihole:/etc/pihole
+      - ../data/pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - ${SHARED_NETWORK}
+
+networks:
+  ${SHARED_NETWORK}:
+    external: true

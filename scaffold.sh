@@ -37,7 +37,7 @@ prepare_directories() {
 
     local base_dirs=("nginx/conf.d" "db/postgres" "data/n8n" "data/paperless"
     "data/paperless/data" "data/paperless/media" "data/paperless/consumption"
-    "data/gitea" "data/navidrome" "data/synapse" "data/authelia" "data/authelia/assets" "logs")
+    "data/gitea" "data/navidrome" "data/synapse" "data/authelia" "data/authelia/assets" "data/pihole" "data/pihole/etc-pihole" "data/pihole/etc-dnsmasq.d" "logs")
 
     for d in "${base_dirs[@]}"; do
         if [ ! -d "$d" ]; then
@@ -46,8 +46,8 @@ prepare_directories() {
     done
 
     echo "Setting permissions for UID $HOST_UID services..."
-    sudo chown -R $HOST_UID:$HOST_GID data/n8n data/gitea data/navidrome data/paperless data/authelia
-    chmod -R 755 data/n8n data/gitea data/navidrome data/paperless data/authelia
+    sudo chown -R $HOST_UID:$HOST_GID data/n8n data/gitea data/navidrome data/paperless data/authelia data/pihole
+    chmod -R 755 data/n8n data/gitea data/navidrome data/paperless data/authelia data/pihole
 
     echo "Setting strict permissions for PostgreSQL..."
     sudo chown -R $HOST_UID:$HOST_GID db/postgres
@@ -105,6 +105,7 @@ REQUIRED_VARS=(
     "SYNAPSE_DB_NAME" "PAPERLESS_DB_NAME" "GITEA_DB_NAME" "AUTHELIA_DB_NAME"
     "AUTHELIA_DB_USER" "AUTHELIA_DB_PASS" "AUTHELIA_JWT_SECRET"
     "AUTHELIA_SESSION_SECRET" "AUTHELIA_STORAGE_ENCRYPTION_KEY" "TZ"
+    "PIHOLE_PASSWORD" "PIHOLE_SERVER_IP"
 )
 
 for var in "${REQUIRED_VARS[@]}"; do
@@ -212,6 +213,11 @@ echo ""
 echo "==============================="
 echo "SYSTEM METRICS API"
 generate_from_template "templates/system-metrics-api/docker-compose.yaml.template" "stats-api/docker-compose.yaml"
+
+echo ""
+echo "==============================="
+echo "PI-HOLE"
+generate_from_template "templates/pihole/pihole.yaml.template" "pihole/docker-compose.yaml"
 
 # Copy shared theme CSS for both landing page and Authelia
 mkdir -p landing

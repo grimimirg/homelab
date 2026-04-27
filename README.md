@@ -69,6 +69,7 @@ set of orchestration scripts.
 * **Reverse Proxy:** <span style="color: #009639;">**Nginx**</span>.
 * **Authentication:** <span style="color: #DC382D;">**Authelia SSO**</span>.
 * **Database:** <span style="color: #316192;">**PostgreSQL**</span>.
+* **DNS:** <span style="color: #96060C;">**Pi-hole**</span>.
 * **Services:** <span style="color: #609926;">**Synapse**</span>,
   <span style="color: #EA4B71;">**n8n**</span>, <span style="color: #609926;">**gitea**</span>,
   <span style="color: #46A046;">**paperless**</span>, <span style="color: #4B8BBE;">**navidrome**</span>.
@@ -132,6 +133,8 @@ set of orchestration scripts.
     ├── paperless                            # Document management + Redis
     │   ├── paperless.conf.template          # Nginx proxy conf for paperless
     │   └── paperless.yaml.template          # Docker Compose template for paperless
+    ├── pihole                               # Pi-hole DNS server definitions
+    │   └── pihole.yaml.template             # Docker Compose template for Pi-hole
     ├── system-metrics-api                   # System metrics and Docker statistics API
     │   └── docker-compose.yaml.template     # Docker Compose template for metrics API
     └── synapse                              # Synapse server definitions
@@ -167,6 +170,8 @@ set of orchestration scripts.
 | AUTHELIA_JWT_SECRET                | Secret key for JWT token generation (auto-generated in .env).                               |
 | AUTHELIA_SESSION_SECRET            | Secret key for session encryption (auto-generated in .env).                                 |
 | AUTHELIA_STORAGE_ENCRYPTION_KEY    | Encryption key for sensitive data storage (auto-generated in .env).                         |
+| PIHOLE_PASSWORD                    | Web interface password for Pi-hole admin panel.                                             |
+| PIHOLE_SERVER_IP                   | The IP address of your server (used for Pi-hole configuration).                             |
 
 ### Secret Generation
 
@@ -382,6 +387,57 @@ DOMAIN=myhomelab.ddns.net
 - **Description**: Document management system with OCR
 - **Database**: Dedicated <span style="color: #316192;">**PostgreSQL**</span>
 
+### 7. <span style="color: #96060C;">**Pi-hole**</span> - DNS Server
+
+- **URL**: `http://SERVER_IP:8053/admin` (local network only)
+- **Description**: Network-wide ad blocking and DNS server
+- **Ports**: 53/tcp, 53/udp (DNS), 127.0.0.1:8053/tcp (Web interface)
+- **Access**: Local network only, not exposed externally
+- **Features**:
+  - DNS-level ad blocking
+  - Network-wide protection
+  - Detailed query statistics
+  - Custom DNS records
+  - DHCP server (optional)
+
+#### Setting Up Local DNS Records
+
+To resolve homelab services by hostname instead of IP addresses, configure custom DNS records in Pi-hole:
+
+1. **Access Pi-hole admin panel** (from the server):
+   ```bash
+   # If using SSH tunnel or directly on the server
+   http://[server_name]:8053/admin
+   ```
+
+2. **Add local DNS records**:
+   - Navigate to **Local DNS** → **DNS Records**
+   - Add entries for your services:
+   
+   | Domain | IP Address |
+   |--------|------------|
+   | `homelab.local` | `SERVER_IP` |
+   | `auth.local` | `SERVER_IP` |
+   | `git.local` | `SERVER_IP` |
+   | `n8n.local` | `SERVER_IP` |
+   | `music.local` | `SERVER_IP` |
+   | `docs.local` | `SERVER_IP` |
+   | `synapse.local` | `SERVER_IP` |
+
+3. **Configure network clients**:
+   - Set your router's DHCP DNS to `SERVER_IP`
+   - Or manually configure DNS on each device to `SERVER_IP`
+
+4. **Access services locally**:
+   ```bash
+   # Instead of https://192.168.1.100
+   https://homelab.local
+   https://git.local
+   https://docs.local
+   ```
+
+**Note**: You'll still need to accept SSL certificate warnings for `.local` domains since Let's Encrypt doesn't issue certificates for local-only domains. Alternatively, use your public domain names (e.g., `git.YOURDOMAIN`) which will resolve correctly both internally and externally.
+
 ---
 
 ## Management Scripts
@@ -441,7 +497,7 @@ Starts the entire infrastructure in the correct order.
 2. Starts <span style="color: #316192;">**PostgreSQL**</span>
 3. Waits for <span style="color: #316192;">**PostgreSQL**</span> to be ready
 4. Provisions databases (`init-db.sh`)
-5. Starts services in order: <span style="color: #EA4B71;">**n8n**</span>, <span style="color: #609926;">**Synapse**</span>, <span style="color: #609926;">**Gitea**</span>, <span style="color: #4B8BBE;">**Navidrome**</span>, <span style="color: #46A046;">**Paperless**</span>, <span style="color: #DC382D;">**Authelia**</span>
+5. Starts services in order: <span style="color: #EA4B71;">**n8n**</span>, <span style="color: #609926;">**Synapse**</span>, <span style="color: #609926;">**Gitea**</span>, <span style="color: #4B8BBE;">**Navidrome**</span>, <span style="color: #46A046;">**Paperless**</span>, <span style="color: #DC382D;">**Authelia**</span>, <span style="color: #96060C;">**Pi-hole**</span>
 6. Starts System Metrics API
 7. Starts <span style="color: #009639;">**NGINX**</span> (reverse proxy)
 
@@ -473,13 +529,14 @@ Restarts a specific service via interactive menu.
 
 1. db (<span style="color: #316192;">**PostgreSQL**</span>)
 2. <span style="color: #DC382D;">**authelia**</span>
-3. stats-api
-4. <span style="color: #009639;">**nginx**</span>
-5. <span style="color: #EA4B71;">**n8n**</span>
-6. <span style="color: #609926;">**synapse**</span>
-7. <span style="color: #609926;">**gitea**</span>
-8. <span style="color: #4B8BBE;">**navidrome**</span>
-9. <span style="color: #46A046;">**paperless**</span>
+3. <span style="color: #96060C;">**pihole**</span>
+4. stats-api
+5. <span style="color: #009639;">**nginx**</span>
+6. <span style="color: #EA4B71;">**n8n**</span>
+7. <span style="color: #609926;">**synapse**</span>
+8. <span style="color: #609926;">**gitea**</span>
+9. <span style="color: #4B8BBE;">**navidrome**</span>
+10. <span style="color: #46A046;">**paperless**</span>
 
 ### `init-db.sh` - Database Provisioning
 
@@ -758,6 +815,7 @@ After deployment, services are accessible via:
 - <span style="color: #609926;">**Synapse**</span>: `https://synapse.YOURDOMAIN`
 - <span style="color: #4B8BBE;">**Navidrome**</span>: `https://music.YOURDOMAIN`
 - <span style="color: #46A046;">**Paperless**</span>: `https://docs.YOURDOMAIN`
+- <span style="color: #96060C;">**Pi-hole**</span>: `http://SERVER_IP:8053/admin` (local only)
 
 ---
 

@@ -63,6 +63,11 @@ docker compose -f authelia/docker-compose.yaml up -d
 echo ""
 
 echo "==============================="
+echo "Starting Pi-hole..."
+docker compose -f pihole/docker-compose.yaml up -d
+echo ""
+
+echo "==============================="
 echo "Starting Docker Stats API..."
 docker compose -f stats-api/docker-compose.yaml up -d --build
 echo ""

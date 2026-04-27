@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # List of available services
-SERVICES=("db" "authelia" "stats-api" "nginx" "n8n" "synapse" "gitea" "navidrome" "paperless")
+SERVICES=("db" "authelia" "pihole" "stats-api" "nginx" "n8n" "synapse" "gitea" "navidrome" "paperless")
 
 echo ""
 echo "~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*"

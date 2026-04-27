@@ -14,6 +14,7 @@ landing/
 logs/
 authelia/
 stats-api/
+pihole/
 *.log
 
 # IDE

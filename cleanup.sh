@@ -26,6 +26,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     docker compose -f gitea/docker-compose.yaml down 2>/dev/null
     docker compose -f navidrome/docker-compose.yaml down 2>/dev/null
     docker compose -f paperless/docker-compose.yaml down 2>/dev/null
+    docker compose -f pihole/docker-compose.yaml down 2>/dev/null
 
     echo "==============================="
     echo "Removing Docker images..."
@@ -38,6 +39,7 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     docker compose -f gitea/docker-compose.yaml down --rmi all 2>/dev/null
     docker compose -f navidrome/docker-compose.yaml down --rmi all 2>/dev/null
     docker compose -f paperless/docker-compose.yaml down --rmi all 2>/dev/null
+    docker compose -f pihole/docker-compose.yaml down --rmi all 2>/dev/null
     echo ""
 
     echo "==============================="
